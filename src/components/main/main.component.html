@@ -1,51 +1,14 @@
 <div id="information-panel">
     <!-- List of uses involved -->
     <ul class="list-unstyled">
-        <li>
-            <h3>James is owed: $80</h3>
-        </li>
-        <li>
-            <h3>Jen needs to settle: $-20</h3>
+        <li *ngFor="let user of userData">
+            <h3>{{user.name}} {{user.amount > 0 ? "is owed $" + user.amount : "owes $" + user.amount}}</h3>
         </li>
     </ul>
     <button (click)="dialog.showModal()">Add Transaction</button>
 </div>
-<div id="expenses">
-    <label>March 4</label>
-    <table class="table">
-        <thead>
-            <tr>
-              <th scope="col">Name</th>
-              <th scope="col">Action</th>
-              <th scope="col">Price</th>
-            </tr>
-          </thead>
-          <tbody>
-                <tr>
-                    <td>
-                        Shopping
-                    </td>
-                    <td>
-                        James paid
-                    </td>
-                    <td>
-                        $100
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        Gas and bills
-                    </td>
-                    <td>
-                        Jen paid
-                    </td>
-                    <td>
-                        $20
-                    </td>
-                </tr>
-          </tbody>
-    </table>
-</div>
+
+<app-expenses [data]="data?.expenses"></app-expenses>
 
 <dialog #dialog>
     <h3>Add Transaction</h3>

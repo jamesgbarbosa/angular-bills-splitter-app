@@ -1,0 +1,25 @@
+<div id="expenses">
+    <label>March 4</label>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Action</th>
+                <th scope="col">Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let it of data">
+                <td>
+                    {{it.name}}
+                </td>
+                <td>
+                    {{it.paidBy?.name}} paid split equally
+                </td>
+                <td>
+                    $ {{it.amountPaid}}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
