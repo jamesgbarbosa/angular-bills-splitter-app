@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ExpensesComponent } from '../expenses/expenses.component';
 import { CommonModule } from '@angular/common';
 import { UserInfoComponent } from '../user-info/user-info.component';
 import { User } from '../../model/user.model';
 import { Expenses } from '../../model/expenses.model';
+import { MatDialog } from '@angular/material/dialog';
+import { AddTransactionModalComponent } from '../add-transaction-modal/add-transaction-modal.component';
 
 @Component({
   selector: 'app-main',
@@ -13,6 +15,12 @@ import { Expenses } from '../../model/expenses.model';
   styleUrl: './main.component.scss'
 })
 export class MainComponent implements OnInit {
+  isModal = true;
+
+  constructor(private dialog: MatDialog) {
+    
+  }
+
   data: {
     users: User[],
     expenses: Expenses[]
@@ -41,6 +49,14 @@ export class MainComponent implements OnInit {
     ]
   }
 
+  openAddTransactionModal() {
+    const dialogRef = this.dialog.open(AddTransactionModalComponent);
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+    });
+  }
+
   userData : any = []
 
 
@@ -62,10 +78,5 @@ export class MainComponent implements OnInit {
     if (user)
     user['amount'] = (user['amount'] ?? 0) + amount;
   }
-
-  constructor() {
-    console.log("Const")
-  }
-
 
 }

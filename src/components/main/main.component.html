@@ -1,8 +1,3 @@
-<app-user-info [userData]="userData"/>
+<app-user-info [userData]="userData" (onAddTransaction)="openAddTransactionModal()"/>
 
 <app-expenses [data]="data?.expenses"/>
-
-<dialog #dialog>
-    <h3>Add Transaction</h3>
-    <button (click)="dialog.close()">Close</button>
-</dialog>

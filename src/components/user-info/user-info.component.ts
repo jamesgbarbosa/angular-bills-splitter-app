@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
   selector: 'app-user-info',
@@ -10,4 +10,9 @@ import { Component, Input } from '@angular/core';
 })
 export class UserInfoComponent {
   @Input() userData: any;
+  @Output() onAddTransaction = new EventEmitter<any>();
+
+  addTransaction() {
+    this.onAddTransaction.emit();
+  }
 }
