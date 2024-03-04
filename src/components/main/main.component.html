@@ -1,14 +1,6 @@
-<div id="information-panel">
-    <!-- List of uses involved -->
-    <ul class="list-unstyled">
-        <li *ngFor="let user of userData">
-            <h3>{{user.name}} {{user.amount > 0 ? "is owed $" + user.amount : "owes $" + user.amount}}</h3>
-        </li>
-    </ul>
-    <button (click)="dialog.showModal()">Add Transaction</button>
-</div>
+<app-user-info [userData]="userData"/>
 
-<app-expenses [data]="data?.expenses"></app-expenses>
+<app-expenses [data]="data?.expenses"/>
 
 <dialog #dialog>
     <h3>Add Transaction</h3>

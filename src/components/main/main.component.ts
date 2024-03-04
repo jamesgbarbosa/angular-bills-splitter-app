@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ExpensesComponent } from '../expenses/expenses.component';
 import { CommonModule } from '@angular/common';
+import { UserInfoComponent } from '../user-info/user-info.component';
 
 @Component({
   selector: 'app-main',
   standalone: true,
-  imports: [ExpensesComponent, CommonModule],
+  imports: [ExpensesComponent, UserInfoComponent, CommonModule],
   templateUrl: './main.component.html',
   styleUrl: './main.component.scss'
 })
