@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ExpensesComponent } from '../expenses/expenses.component';
 import { CommonModule } from '@angular/common';
 import { UserInfoComponent } from '../user-info/user-info.component';
+import { User } from '../../model/user.model';
+import { Expenses } from '../../model/expenses.model';
 
 @Component({
   selector: 'app-main',
@@ -11,7 +13,10 @@ import { UserInfoComponent } from '../user-info/user-info.component';
   styleUrl: './main.component.scss'
 })
 export class MainComponent implements OnInit {
-  data = {
+  data: {
+    users: User[],
+    expenses: Expenses[]
+  } = {
     users: [
       { id: "user1", name: 'James'},
       { id: "user2", name: 'Jen' },
@@ -20,6 +25,7 @@ export class MainComponent implements OnInit {
       {
         id: "e1",
         name: 'Grocery',
+        dataCreated: new Date(),
         paidBy: { id: "user1", name: 'James' },
         debts: [ {id: "user1", amount: 100} , {id: "user2", amount: -100}],
         amountPaid: 200
@@ -27,6 +33,7 @@ export class MainComponent implements OnInit {
       {
         id: "e2",
         name: 'Bills',
+        dataCreated: new Date(),
         paidBy: { id: "user2", name: 'Jen' },
         debts: [{id: "user2", amount: 50}, {id: "user1", amount: -50}],
         amountPaid: 100
@@ -38,6 +45,10 @@ export class MainComponent implements OnInit {
 
 
   ngOnInit(): void {
+    this.initialize();
+  }
+
+  initialize() {
     this.userData = [...this.data.users]
     this.data.expenses.forEach((it) => {
       it.debts.forEach((debt) => {
