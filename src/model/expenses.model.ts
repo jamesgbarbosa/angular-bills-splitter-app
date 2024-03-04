@@ -1,6 +1,6 @@
 import { User } from "./user.model";
 
-export interface Expenses {
+export interface Expense {
     id: string,
     dataCreated: Date,
     name: string,
