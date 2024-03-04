@@ -1,6 +1,25 @@
 <div class="modal-container">
     <h3>Add Transaction</h3>
-    <label>Name</label>
-    <input type="text" />
-    <button>Close</button>
+    <form [formGroup]="form">
+        <div class="mb-3">
+            <label for="userId" class="form-label">User</label>
+            <select class="form-control" formControlName="userId" >
+                <option selected *ngFor="let u of data.users; let i = index" [value]="u.id">
+                     {{u.name}}
+                </option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <input id="name" class="form-control" formControlName="name" type="text" />
+        </div>
+        <div class="mb-3">
+            <label for="amountPaid" class="form-label">Amount</label>
+            <input id="amountPaid" class="form-control" formControlName="amountPaid" type="number" />
+        </div>
+        <button (click)="add()">Add</button>
+        <button (click)="close()">Close</button>
+    </form>
+
+    {{form?.value | json}}
 </div>
