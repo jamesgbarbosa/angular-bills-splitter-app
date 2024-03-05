@@ -95,12 +95,12 @@ export class MainComponent implements OnInit {
     this.userData = this.data.users.map(it => ({ ...it, amount: 0 }))
     this.data.expenses.forEach((it) => {
       for (const [key, value] of Object.entries(it.credit)) {
-        this.addToUser(key, value as number)
+        this.addBalanceToUser(key, value as number)
       }
     })
   }
 
-  addToUser(userId: string, amount: number) {
+  addBalanceToUser(userId: string, amount: number) {
     let user = this.userData.find((it: any) => it.id == userId)
     if (user)
       user['amount'] = (user['amount'] ?? 0) + amount;
