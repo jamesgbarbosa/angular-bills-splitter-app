@@ -9,15 +9,7 @@ import { Expense } from '../../model/expenses.model';
   templateUrl: './expenses.component.html',
   styleUrl: './expenses.component.scss'
 })
-export class ExpensesComponent implements OnChanges {
+export class ExpensesComponent {
   
-  @Input() data: any;
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (this.data) {
-      this.data = this.data?.map((it: Expense) => ({
-        ...it, action: `${it.paidBy.name} paid ( ${it.transactionType})`
-      }))
-    }
-  }
+  @Input() data: Expense[] | any;
 }

@@ -2,7 +2,8 @@
     <table class="table">
         <thead>
             <tr>
-                <th scope="col">Name</th>
+                <th scope="col">User</th>
+                <th scope="col">Transaction Name</th>
                 <th scope="col">Action</th>
                 <th scope="col">Price</th>
             </tr>
@@ -10,10 +11,13 @@
         <tbody>
             <tr *ngFor="let it of data">
                 <td>
+                    {{it.paidBy?.name}}
+                </td>
+                <td>
                     {{it.name}}
                 </td>
                 <td>
-                    {{it.action}}
+                    {{it.transactionType}}
                 </td>
                 <td>
                     $ {{it.amountPaid}}

@@ -24,7 +24,7 @@ export class AddTransactionModalComponent implements OnInit {
       userId: [user1, Validators.required],
       name: ['', Validators.required],
       transactionType: [this.transactionTypes[0].id, Validators.required],
-      amountPaid: [0, Validators.required]
+      amountPaid: [0, [Validators.required, Validators.min(1)]]
     })
   }
 
