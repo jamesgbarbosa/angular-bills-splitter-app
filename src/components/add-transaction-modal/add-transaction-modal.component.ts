@@ -14,13 +14,16 @@ import {
 })
 export class AddTransactionModalComponent implements OnInit {
   form: FormGroup | any;
+  transactionTypes: any;
 
   constructor(public dialogRef: MatDialogRef<AddTransactionModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any, private fb: FormBuilder) {
     let user1 = data.users.length > 0 ? data.users[0].id : null;
+    this.transactionTypes = data.transactionTypes;
     this.form = this.fb.group({
       userId: [user1, Validators.required],
       name: ['', Validators.required],
+      transactionType: ['', Validators.required],
       amountPaid: [0, Validators.required]
     })
   }

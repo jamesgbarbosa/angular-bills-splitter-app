@@ -14,6 +14,14 @@
             <input id="name" class="form-control" formControlName="name" type="text" />
         </div>
         <div class="mb-3">
+            <label for="transactionType" class="form-label">Type</label>
+            <select class="form-control" formControlName="transactionType" >
+                <option selected *ngFor="let t of transactionTypes; let i = index" [value]="t.id">
+                     {{t.name}}
+                </option>
+            </select>
+        </div>
+        <div class="mb-3">
             <label for="amountPaid" class="form-label">Amount</label>
             <input id="amountPaid" class="form-control" formControlName="amountPaid" type="number" />
         </div>
