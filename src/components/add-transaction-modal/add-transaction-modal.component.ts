@@ -23,7 +23,7 @@ export class AddTransactionModalComponent implements OnInit {
     this.form = this.fb.group({
       userId: [user1, Validators.required],
       name: ['', Validators.required],
-      transactionType: ['', Validators.required],
+      transactionType: [this.transactionTypes[0].id, Validators.required],
       amountPaid: [0, Validators.required]
     })
   }

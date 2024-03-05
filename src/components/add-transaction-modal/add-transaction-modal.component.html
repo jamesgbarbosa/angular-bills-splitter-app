@@ -4,7 +4,7 @@
         <div class="mb-3">
             <label for="userId" class="form-label">User</label>
             <select class="form-control" formControlName="userId" >
-                <option selected *ngFor="let u of data.users; let i = index" [value]="u.id">
+                <option *ngFor="let u of data.users; let i = index" [value]="u.id">
                      {{u.name}}
                 </option>
             </select>
@@ -16,7 +16,7 @@
         <div class="mb-3">
             <label for="transactionType" class="form-label">Type</label>
             <select class="form-control" formControlName="transactionType" >
-                <option selected *ngFor="let t of transactionTypes; let i = index" [value]="t.id">
+                <option *ngFor="let t of transactionTypes; let i = index" [value]="t.id">
                      {{t.name}}
                 </option>
             </select>

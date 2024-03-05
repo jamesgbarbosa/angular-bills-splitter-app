@@ -5,7 +5,7 @@ export interface Expense {
     dataCreated: Date,
     name: string,
     paidBy: User,
-    debts: AmountBalance[],
+    credit: any,
     amountPaid: number,
     transactionType: string
 }

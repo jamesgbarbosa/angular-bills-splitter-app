@@ -6,6 +6,7 @@ import { User } from '../../model/user.model';
 import { Expense } from '../../model/expenses.model';
 import { MatDialog } from '@angular/material/dialog';
 import { AddTransactionModalComponent } from '../add-transaction-modal/add-transaction-modal.component';
+import { OWED_FULL_AMOUNT, SPLIT_EQUALLY } from '../../constants/transaction-types.constant';
 
 @Component({
   selector: 'app-main',
@@ -16,8 +17,18 @@ import { AddTransactionModalComponent } from '../add-transaction-modal/add-trans
 })
 export class MainComponent implements OnInit {
   isModal = true;
-  e : any;
-  constructor(private dialog: MatDialog) {}
+  userData: any = []
+
+  transactionTypes = [
+    { id: SPLIT_EQUALLY, name: "Split equally" },
+    { id: OWED_FULL_AMOUNT, name: "Owed full amount" }
+  ]
+
+  constructor(private dialog: MatDialog) { }
+
+  ngOnInit(): void {
+    this.initialize();
+  }
 
   data: {
     users: User[],
@@ -33,48 +44,52 @@ export class MainComponent implements OnInit {
 
   openAddTransactionModal() {
     const dialogRef = this.dialog.open(AddTransactionModalComponent, {
-      data: { users: this.data.users }
+      data: { users: this.data.users, transactionTypes: this.transactionTypes }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        let numberOfUsers = this.data.users.length;
         let paidBy = this.data.users.find(it => it.id == result.userId)
-        let part = +(+result.amountPaid / numberOfUsers).toFixed(2);
-
-        let debts = this.data.users.map(it => ({
-          id: it.id,
-          amount: paidBy?.id == it.id ? part : part * -1
-        }))
 
         let expense: Expense = {
           ...result,
           id: new Date().getMilliseconds(),
           paidBy: paidBy,
-          debts: debts,
-          dateCreader: new Date()
+          dateCreated: new Date()
         }
+        expense = this._initializeCredit(expense);
 
         this.data.expenses = [expense, ...this.data.expenses]
-        this.e = expense;
         this.initialize();
       }
     });
   }
 
-  userData: any = []
-
-
-  ngOnInit(): void {
-    this.initialize();
+  _initializeCredit(expense: Expense) {
+    let type = expense.transactionType;
+    let credit = {};
+    let payeePart = 0;
+    let otherUsersPart = 0;
+    switch (type) {
+      case SPLIT_EQUALLY: {
+        let numberOfUsers = this.data.users.length;
+        let part = +(+expense.amountPaid / numberOfUsers).toFixed(2);
+        payeePart = part;
+        otherUsersPart = part * -1
+        break;
+      }
+    }
+    credit = this.data.users
+      .reduce((obj, it) => ({ ...obj, [it.id]: expense.paidBy?.id == it.id ? payeePart : otherUsersPart }), {})
+    return {...expense, credit: credit};
   }
 
   initialize() {
-    this.userData = this.data.users.map(it => ({...it, amount: 0}))
+    this.userData = this.data.users.map(it => ({ ...it, amount: 0 }))
     this.data.expenses.forEach((it) => {
-      it.debts.forEach((debt) => {
-        this.addToUser(debt.id, debt.amount)
-      })
+      for (const [key, value] of Object.entries(it.credit)) {
+        this.addToUser(key, value as number)
+      }
     })
   }
 
