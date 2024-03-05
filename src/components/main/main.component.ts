@@ -70,11 +70,18 @@ export class MainComponent implements OnInit {
     let credit = {};
     let payeePart = 0;
     let otherUsersPart = 0;
+    let numberOfUsers = this.data.users.length;
+
     switch (type) {
       case SPLIT_EQUALLY: {
-        let numberOfUsers = this.data.users.length;
         let part = +(+expense.amountPaid / numberOfUsers).toFixed(2);
         payeePart = part;
+        otherUsersPart = part * -1
+        break;
+      }
+      case OWED_FULL_AMOUNT: {
+        let part = +(+expense.amountPaid / (numberOfUsers-1)).toFixed(2);
+        payeePart = +expense.amountPaid;
         otherUsersPart = part * -1
         break;
       }
