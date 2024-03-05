@@ -5,12 +5,7 @@ export interface Expense {
     dataCreated: Date,
     name: string,
     paidBy: User,
-    credit: any,
+    credit: any, // {<userId>, <credit/debit balance>, ... }
     amountPaid: number,
     transactionType: string
-}
-
-interface AmountBalance {
-    id: string,
-    amount: number
 }

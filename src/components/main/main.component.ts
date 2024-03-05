@@ -38,6 +38,7 @@ export class MainComponent implements OnInit {
         { id: "user1", name: 'James' },
         { id: "user2", name: 'Jen' },
         { id: "user3", name: 'Jackson' },
+        { id: "user4", name: 'Jane' },
       ],
       expenses: []
     }
@@ -74,13 +75,12 @@ export class MainComponent implements OnInit {
 
     switch (type) {
       case SPLIT_EQUALLY: {
-        let part = +(+expense.amountPaid / numberOfUsers).toFixed(2);
-        payeePart = part;
-        otherUsersPart = part * -1
+        payeePart = +((+expense.amountPaid * (numberOfUsers-1)) / numberOfUsers)
+        otherUsersPart = +(((+expense.amountPaid) / numberOfUsers)* -1)
         break;
       }
       case OWED_FULL_AMOUNT: {
-        let part = +(+expense.amountPaid / (numberOfUsers-1)).toFixed(2);
+        let part = +(+expense.amountPaid / (numberOfUsers-1))
         payeePart = +expense.amountPaid;
         otherUsersPart = part * -1
         break;
@@ -103,7 +103,7 @@ export class MainComponent implements OnInit {
   addBalanceToUser(userId: string, amount: number) {
     let user = this.userData.find((it: any) => it.id == userId)
     if (user)
-      user['amount'] = (user['amount'] ?? 0) + amount;
+      user['amount'] = ((+user['amount'] ?? 0) + amount).toFixed(2);
   }
 
 }
