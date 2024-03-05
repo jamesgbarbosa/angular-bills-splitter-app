@@ -6,7 +6,8 @@ export interface Expense {
     name: string,
     paidBy: User,
     debts: AmountBalance[],
-    amountPaid: number
+    amountPaid: number,
+    transactionType: string
 }
 
 interface AmountBalance {
