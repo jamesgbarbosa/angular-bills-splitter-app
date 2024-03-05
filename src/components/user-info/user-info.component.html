@@ -2,7 +2,11 @@
     <!-- List of uses involved -->
     <ul class="list-unstyled">
         <li *ngFor="let user of userData">
-            <h3>{{user.name}} {{user.amount > 0 ? "is owed $" + user.amount : "owes $" + user.amount}}</h3>
+            <h3>{{user.name}} 
+                <span [ngClass]="user.amount > 0 ? 'text-success':'text-danger'">
+                    {{user.amount > 0 ? "is owed $" + user.amount : "owes $" + user.amount}}
+                </span>
+            </h3>
         </li>
     </ul>
     <button (click)="addTransaction()">Add Transaction</button>
