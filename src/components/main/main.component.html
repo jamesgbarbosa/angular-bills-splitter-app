@@ -1,6 +1,13 @@
 <app-user-info [userData]="userData" (onAddTransaction)="openAddTransactionModal()"/>
-<app-expenses [data]="data?.expenses"/>
+<app-expenses *ngIf="data?.expenses?.length; else noData" [data]="data?.expenses"/>
+<!-- <pre>
+    {{data?.expenses | json}}
+</pre>
 
 <pre>
-    {{data?.expenses}}
-</pre>
+    {{userData | json}}
+</pre> -->
+
+<ng-template #noData>
+    <p>No Data</p>
+</ng-template>

@@ -1,8 +1,17 @@
 #information-panel {
     padding-top: 2rem;
     padding-bottom: 2rem;
+
+    .info-item {
+        padding: 2rem;
+    }
 }
 
 .button-container {
     padding-top: 2rem;
+}
+
+.flex {
+    display: flex;
+    flex-wrap: wrap;
 }
