@@ -39,8 +39,8 @@ export class MainComponent implements OnInit {
         { id: "user1", name: 'James' },
         { id: "user2", name: 'Jen' },
         { id: "user3", name: 'Jackson' },
-        { id: "user4", name: 'Jane' },
-        { id: "user5", name: 'Bob' },
+        // { id: "user4", name: 'Jane' },
+        // { id: "user5", name: 'Bob' },
       ],
       expenses: []
     }
@@ -98,7 +98,7 @@ export class MainComponent implements OnInit {
             let amount = expense.paidBy?.id == it.id ? payeePart : otherUsersPart;
             return {
               ...obj,
-              [it.id]: amount
+              [it.id]: +amount.toFixed(2)
             }
           }, {})
 
@@ -116,7 +116,7 @@ export class MainComponent implements OnInit {
             let amount = expense.paidBy?.id == it.id ? payeePart : otherUsersPart;
             return {
               ...obj,
-              [it.id]: amount
+              [it.id]: +amount.toFixed(2)
             }
           }, {})
         break;
@@ -172,8 +172,13 @@ export class MainComponent implements OnInit {
 
   addBalanceToUser(userId: string, credit: number) {
     let user = this.userData.find((it: any) => it.id == userId)
-    if (user)
-      user['amount'] = ((+user['amount'] ?? 0) + credit).toFixed(2);
+    if (user) {
+      let amount = +((+user['amount'] ?? 0) + credit).toFixed(2);
+      if (Math.abs(amount) < 0.02) {
+        amount = 0;
+      }
+      user['amount'] = amount;
+    }
   }
 
   initializeDebtsObject() {
@@ -244,7 +249,8 @@ export class MainComponent implements OnInit {
     this.userData.forEach((user: any) => {
       if (user['debts']) {
         for (const [userId, value] of Object.entries(user['debts'])) {
-          if ((value as number) == 0) {
+          let val = (value as number);
+          if (val == 0) {
             delete user.debts[userId]
           }
         }
