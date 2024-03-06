@@ -4,7 +4,7 @@
         <div class="info-item" *ngFor="let user of userData; let l = last">
             <div>
                 <h3>{{user.name}}
-                    <span [ngClass]="user.amount > 0 ? 'text-success':'text-danger'">
+                    <span *ngIf="user.amount != 0; else allSettled" [ngClass]="user.amount > 0 ? 'text-success':'text-danger'">
                         {{user.amount > 0 ? "is owed $" + (user.amount | abs) : "owes $" + (user.amount | abs )}}
                     </span>
                 </h3>
@@ -28,3 +28,7 @@
         <button class="btn btn-primary" type="button" (click)="settlePayment()">Settle</button>
     </div>
 </div>
+
+<ng-template #allSettled>
+    <span class="text-success">is all settled</span>
+</ng-template>
