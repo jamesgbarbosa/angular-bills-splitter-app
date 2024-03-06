@@ -49,6 +49,7 @@ export class SettlePaymentModalComponent {
     let maxDebt = Math.abs((this.form.get('paymentToList').value).find((it: any) => it.id == event.target.value).debt)
     this.form.get('amountPaid').setValidators([Validators.required, Validators.min(1), Validators.max(maxDebt)])
     this.form.get('amountPaid').updateValueAndValidity();
+    this.form.get('amountPaid').setValue(maxDebt)
   }
 
   ngOnInit(): void {
@@ -59,7 +60,7 @@ export class SettlePaymentModalComponent {
     this.dialogRef.close();
   }
 
-  add() {
+  settle() {
     this.dialogRef.close(this.form.value)
   }
 }
