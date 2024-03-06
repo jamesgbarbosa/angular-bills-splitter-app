@@ -43,28 +43,7 @@ export class MainComponent implements OnInit {
       ],
       expenses: []
     }
-  userSettle() {
-    this.data.expenses.push(
-      {
-        "userId": "user1",
-        "name": "Food",
-        "transactionType": "SETTLE",
-        "amountPaid": 5,
-        "id": "222",
-        "paidBy": {
-          "id": "user1",
-          "name": "James"
-        },
-        "dateCreated": new Date(),
-        "credit": {
-          "user1": -5,
-          "user2": 5
-        }
-      }
-    )
 
-    this.initialize()
-  }
   openAddTransactionModal() {
     const dialogRef = this.dialog.open(AddTransactionModalComponent, {
       data: { users: this.data.users, transactionTypes: this.transactionTypes }
@@ -121,6 +100,47 @@ export class MainComponent implements OnInit {
   }
 
   initialize() {
+    this.initializeDebtsObject();
+    this.initializeIsOwedObject();
+
+    this.simplifyDebtBalance();
+    this.initInfoMapping();
+  }
+
+  _checkAmount(data: any, userId: string) {
+    try {
+      return data[userId];
+    } catch (err) {
+      console.log("ERROR", data)
+      return 0;
+    }
+  }
+
+  // addDebtTrackerToUser(expenseUserId: any, userId: string, amount: any) {
+  //   //debt computer
+  //   let currUser = this.userData.find((it: any) => it.id == userId)
+
+  //   if (userId != expenseUserId) {
+  //     if (!currUser?.debts) {
+  //       currUser.debts = {}
+  //     }
+  //     if (!currUser?.debts[expenseUserId]) {
+  //       currUser.debts[expenseUserId] = 0
+  //     }
+  //     currUser['debts'] = {
+  //       ...currUser['debts'],
+  //       [expenseUserId]: currUser['debts'][expenseUserId] + Math.abs(amount)
+  //     }
+  //   }
+  // }
+
+  addBalanceToUser(userId: string, credit: number) {
+    let user = this.userData.find((it: any) => it.id == userId)
+    if (user)
+      user['amount'] = ((+user['amount'] ?? 0) + credit).toFixed(2);
+  }
+
+  initializeDebtsObject() {
     this.userData = this.data.users.map(it => ({ ...it, amount: 0 }))
 
     this.data.expenses.forEach((it) => {
@@ -146,9 +166,10 @@ export class MainComponent implements OnInit {
         }
       }
     })
-
+  }
+  initializeIsOwedObject() {
     // Initialize isOwed object
-    this.userData.forEach((user: any) => {
+    this.userData.forEach((user: User) => {
       if (user['debts']) {
         let currentUserId = user.id;
         for (const [userId, debt] of Object.entries(user['debts'])) {
@@ -166,42 +187,6 @@ export class MainComponent implements OnInit {
         }
       }
     })
-
-    this.simplifyDebtBalance();
-    // this.simplifyDebtBalance('debts');
-  }
-
-  _checkAmount(data: any, userId: string) {
-    try {
-      return data[userId];
-    } catch (err) {
-      console.log("ERROR", data)
-      return 0;
-    }
-  }
-
-  addDebtTrackerToUser(expenseUserId: any, userId: string, amount: any) {
-    //debt computer
-    let currUser = this.userData.find((it: any) => it.id == userId)
-
-    if (userId != expenseUserId) {
-      if (!currUser?.debts) {
-        currUser.debts = {}
-      }
-      if (!currUser?.debts[expenseUserId]) {
-        currUser.debts[expenseUserId] = 0
-      }
-      currUser['debts'] = {
-        ...currUser['debts'],
-        [expenseUserId]: currUser['debts'][expenseUserId] + Math.abs(amount)
-      }
-    }
-  }
-
-  addBalanceToUser(userId: string, credit: number) {
-    let user = this.userData.find((it: any) => it.id == userId)
-    if (user)
-      user['amount'] = ((+user['amount'] ?? 0) + credit).toFixed(2);
   }
 
   simplifyDebtBalance() {
@@ -227,6 +212,41 @@ export class MainComponent implements OnInit {
     this.userData.forEach((user: any) => {
       if (user['isOwed']) {
         user['totalOwed'] = Object.entries(user['isOwed']).reduce((val, [key, value]) => { return val + (value as number) }, 0)
+      }
+    })
+  }
+
+  initInfoMapping() {
+    // User mapping
+    this.userData.forEach((user: User) => {
+      if (user['isOwed']) {
+        for (const [userId, val] of Object.entries(user['isOwed'])) {
+          let currUser = this.userData.find((it: any) => it.id == userId)
+
+          if (!user.isOwedMap) {
+            user['isOwedMap'] = {}
+          }
+
+          user.isOwedMap = {
+            ...user.isOwedMap,
+            [currUser.name]: user.isOwed[userId]
+          }
+        }
+      }
+
+      if (user['debts']) {
+        for (const [userId, val] of Object.entries(user['debts'])) {
+          let currUser = this.userData.find((it: any) => it.id == userId)
+
+          if (!user.debtsMap) {
+            user['debtsMap'] = {}
+          }
+
+          user.debtsMap = {
+            ...user.debtsMap,
+            [currUser.name]: user.debts[userId]
+          }
+        }
       }
     })
   }

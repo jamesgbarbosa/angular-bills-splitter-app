@@ -1,21 +1,27 @@
 <div id="information-panel">
     <!-- List of uses involved -->
     <ul class="list-unstyled">
-        <li *ngFor="let user of userData">
+        <li *ngFor="let user of userData; let l = last">
             <h3>{{user.name}} 
                 <span [ngClass]="user.amount > 0 ? 'text-success':'text-danger'">
                     {{user.amount > 0 ? "is owed $" + (user.amount | abs) : "owes $" + (user.amount | abs )}}
                 </span>
             </h3>
 
-            <div *ngFor="let item of user.debts | keyvalue">
-                Owes <b class="text-danger">{{item.key}}</b> : <b>${{item.value | abs}}</b>
+            <div *ngFor="let item of user.debtsMap | keyvalue">
+                You owe <b>${{(item.value | abs)}}</b> to <b class="text-danger">{{item.key}}</b> 
             </div>
-            <hr>
-            <div *ngFor="let item of user.isOwed | keyvalue">
-                Owed <b>${{item.value | abs}}</b> by <b class="text-success">{{item.key}}</b> 
+
+
+            <div *ngFor="let item of user.isOwedMap | keyvalue">
+                <b class="text-success">{{item.key}}</b> owe you <b>${{item.value | abs}}</b>  
             </div>
+
+            <hr *ngIf="!l">
+
         </li>
     </ul>
-    <button (click)="addTransaction()">Add Transaction</button>
+    <div class="button-container">
+        <button (click)="addTransaction()">Add Transaction</button>
+    </div>
 </div>
