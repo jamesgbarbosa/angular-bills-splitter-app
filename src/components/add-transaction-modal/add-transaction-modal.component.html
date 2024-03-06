@@ -25,7 +25,7 @@
             <label for="amountPaid" class="form-label">Amount</label>
             <input id="amountPaid" class="form-control" formControlName="amountPaid" type="number" />
         </div>
-        <button [disabled]="form.invalid" (click)="add()">Add</button>
-        <button (click)="close()">Close</button>
+        <button type="button" class="btn btn-light" (click)="close()">Close</button>
+        <button type="button" class="btn btn-primary" [disabled]="form.invalid" (click)="add()">Add</button>
     </form>
 </div>

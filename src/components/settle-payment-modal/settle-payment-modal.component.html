@@ -27,7 +27,7 @@
                 Invalid input
             </span>
         </div>
-        <button [disabled]="form.invalid" (click)="settle()">Settle Payment</button>
-        <button (click)="close()">Close</button>
+        <button class="btn btn-light" (click)="close()">Close</button>
+        <button class="btn btn-primary" [disabled]="form.invalid" (click)="settle()">Settle Payment</button>
     </form>
 </div>
