@@ -6,7 +6,7 @@ import { User } from '../../model/user.model';
 import { Expense } from '../../model/expenses.model';
 import { MatDialog } from '@angular/material/dialog';
 import { AddTransactionModalComponent } from '../add-transaction-modal/add-transaction-modal.component';
-import { OWED_FULL_AMOUNT, SPLIT_EQUALLY } from '../../constants/transaction-types.constant';
+import { OWED_FULL_AMOUNT, SETTLE, SPLIT_EQUALLY } from '../../constants/transaction-types.constant';
 import { SettlePaymentModalComponent } from '../settle-payment-modal/settle-payment-modal.component';
 
 @Component({
@@ -52,16 +52,7 @@ export class MainComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        let paidBy = this.data.users.find(it => it.id == result.userId)
-
-        let expense: Expense = {
-          ...result,
-          id: new Date().getMilliseconds(),
-          paidBy: paidBy,
-          dateCreated: new Date()
-        }
-        expense = this._initializeCredit(expense);
-
+        let expense = this._initializeExpense(result);
         this.data.expenses = [expense, ...this.data.expenses]
         this.initialize();
       }
@@ -69,65 +60,85 @@ export class MainComponent implements OnInit {
   }
 
   settlePayment() {
-      let usersWithDebts = this.userData.filter((it: any) => (it?.debts && Object.keys(it?.debts).length > 0))
-      const dialogRef = this.dialog.open(SettlePaymentModalComponent, {
-        data: { users: this.userData, usersWithDebts: usersWithDebts, transactionTypes: this.transactionTypes }
-      });
-  
-      dialogRef.afterClosed().subscribe(result => {
-        if (result) {
-          // let paidBy = this.data.users.find(it => it.id == result.userId)
-  
-          // let expense: Expense = {
-          //   ...result,
-          //   id: new Date().getMilliseconds(),
-          //   paidBy: paidBy,
-          //   dateCreated: new Date()
-          // }
-          // expense = this._initializeCredit(expense);
-  
-          // this.data.expenses = [expense, ...this.data.expenses]
-          this.initialize();
-        }
-      });
+    let usersWithDebts = this.userData.filter((it: any) => (it?.debts && Object.keys(it?.debts).length > 0))
+    const dialogRef = this.dialog.open(SettlePaymentModalComponent, {
+      data: { users: this.userData, usersWithDebts: usersWithDebts, transactionTypes: this.transactionTypes }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        result.transactionType = SETTLE;
+        let expense = this._initializeExpense(result);
+        this.data.expenses = [expense, ...this.data.expenses]
+        this.initialize();
+      }
+    });
   }
 
-  _initializeCredit(expense: Expense) {
-    let type = expense.transactionType;
-    let credit = {};
-    let payeePart = 0;
-    let otherUsersPart = 0;
-    let numberOfUsers = this.data.users.length;
+  _initializeExpense(result: any) {
+    let paidBy = this.data.users.find(it => it.id == result.userId)
+    let expense: Expense = {
+      userId: '',
+      id: new Date().getMilliseconds() + "",
+      paidBy: paidBy,
+      dateCreated: new Date(),
+      amountPaid: result.amountPaid,
+      transactionType: result.transactionType
+    }
 
-    switch (type) {
+    switch (expense.transactionType) {
       case SPLIT_EQUALLY: {
-        payeePart = +((+expense.amountPaid * (numberOfUsers - 1)) / numberOfUsers)
-        otherUsersPart = +(((+expense.amountPaid) / numberOfUsers) * -1)
+        expense.name = result.name;
+        let numberOfUsers = this.data.users.length;
+        let payeePart = +((+expense.amountPaid * (numberOfUsers - 1)) / numberOfUsers)
+        let otherUsersPart = +(((+expense.amountPaid) / numberOfUsers) * -1)
+
+        expense.credit = this.data.users
+          .reduce((obj, it) => {
+            let amount = expense.paidBy?.id == it.id ? payeePart : otherUsersPart;
+            return {
+              ...obj,
+              [it.id]: amount
+            }
+          }, {})
+
         break;
       }
       case OWED_FULL_AMOUNT: {
+        expense.name = result.name;
+        let numberOfUsers = this.data.users.length;
         let part = +(+expense.amountPaid / (numberOfUsers - 1))
-        payeePart = +expense.amountPaid;
-        otherUsersPart = part * -1
+        let payeePart = +expense.amountPaid;
+        let otherUsersPart = part * -1;
+
+        expense.credit = this.data.users
+          .reduce((obj, it) => {
+            let amount = expense.paidBy?.id == it.id ? payeePart : otherUsersPart;
+            return {
+              ...obj,
+              [it.id]: amount
+            }
+          }, {})
+        break;
+      }
+      case SETTLE: {
+        let paymentTo = this.data.users.find(it => it.id == result.paymentTo)
+        expense.name = 'Settle payment to user ' + `${paymentTo?.name}(${paymentTo?.id})`
+        expense.credit = {
+          [result.userId]: result.amountPaid,
+          [result.paymentTo]: -Math.abs(result.amountPaid),
+        }
         break;
       }
     }
 
-    credit = this.data.users
-      .reduce((obj, it) => {
-        let amount = expense.paidBy?.id == it.id ? payeePart : otherUsersPart;
-        return {
-          ...obj,
-          [it.id]: amount
-        }
-      }, {})
-    return { ...expense, credit: credit };
+    return expense;
   }
 
   initialize() {
     this.initializeDebtsObject();
     this.initializeIsOwedObject();
-    
+
     this.simplifyDebtBalance();
     this.initInfoMapping();
   }
@@ -168,7 +179,7 @@ export class MainComponent implements OnInit {
   initializeDebtsObject() {
     this.userData = this.data.users.map(it => ({ ...it, amount: 0 }))
 
-    this.data.expenses.forEach((it) => {
+    this.data.expenses.forEach((it: any) => {
       for (const [userId, credit] of Object.entries(it.credit)) {
         this.addBalanceToUser(userId, credit as number)
         // this.addDebtTrackerToUser(it.paidBy.id, userId, credit)
