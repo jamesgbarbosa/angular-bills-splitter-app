@@ -15,21 +15,14 @@ import { User } from '../../model/user.model';
 export class SettlePaymentModalComponent {
   form: FormGroup | any;
   usersWithDebts: User[] = [];
-  // paymentToList: User[];
 
   constructor(public dialogRef: MatDialogRef<AddTransactionModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any, private fb: FormBuilder) {
     this.usersWithDebts = data.usersWithDebts;
-    // this.paymentToList = Object.entries(a).map(([key, value]) => {
-    //   return { id: key, value: key }
-    // })
-    let user1 = this.usersWithDebts.length > 0 ? this.usersWithDebts[0].id : null;
     this.form = this.fb.group({
       userId: ['', Validators.required],
       paymentTo: ['', Validators.required],
       paymentToList: [],
-      // name: ['Food', Validators.required],
-      // transactionType: [this.transactionTypes[0].id, Validators.required],
       amountPaid: [0, [Validators.required, Validators.min(1)]]
     })
   }
@@ -53,7 +46,6 @@ export class SettlePaymentModalComponent {
   }
 
   ngOnInit(): void {
-
   }
 
   close() {
