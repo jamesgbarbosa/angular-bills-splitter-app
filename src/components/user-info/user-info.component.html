@@ -4,9 +4,17 @@
         <li *ngFor="let user of userData">
             <h3>{{user.name}} 
                 <span [ngClass]="user.amount > 0 ? 'text-success':'text-danger'">
-                    {{user.amount > 0 ? "is owed $" + user.amount : "owes $" + user.amount}}
+                    {{user.amount > 0 ? "is owed $" + (user.amount | abs) : "owes $" + (user.amount | abs )}}
                 </span>
             </h3>
+
+            <div *ngFor="let item of user.debts | keyvalue">
+                Owes <b class="text-danger">{{item.key}}</b> : <b>${{item.value | abs}}</b>
+            </div>
+            <hr>
+            <div *ngFor="let item of user.isOwed | keyvalue">
+                Owed <b>${{item.value | abs}}</b> by <b class="text-success">{{item.key}}</b> 
+            </div>
         </li>
     </ul>
     <button (click)="addTransaction()">Add Transaction</button>

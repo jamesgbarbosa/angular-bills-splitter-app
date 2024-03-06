@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { AbsPipe } from '../../pipes/abs.pipe';
 
 @Component({
   selector: 'app-user-info',
   standalone: true,
-  imports: [CommonModule],
+  imports: [AbsPipe, CommonModule],
   templateUrl: './user-info.component.html',
   styleUrl: './user-info.component.scss'
 })
