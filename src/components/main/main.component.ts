@@ -28,20 +28,25 @@ export class MainComponent implements OnInit {
   constructor(private dialog: MatDialog) { }
 
   ngOnInit(): void {
+    this.initializeUsers();
     this.initialize();
+  }
+
+  initializeUsers() {
+    this.data.users = [
+      { id: "user1", name: 'James' },
+      { id: "user2", name: 'Jen' },
+      { id: "user3", name: 'Jackson' },
+      // { id: "user4", name: 'Jane' },
+      // { id: "user5", name: 'Bob' },
+    ]
   }
 
   data: {
     users: User[],
     expenses: Expense[]
   } = {
-      users: [
-        { id: "user1", name: 'James' },
-        { id: "user2", name: 'Jen' },
-        { id: "user3", name: 'Jackson' },
-        // { id: "user4", name: 'Jane' },
-        // { id: "user5", name: 'Bob' },
-      ],
+      users: [],
       expenses: []
     }
 
@@ -152,26 +157,8 @@ export class MainComponent implements OnInit {
     }
   }
 
-  // addDebtTrackerToUser(expenseUserId: any, userId: string, amount: any) {
-  //   //debt computer
-  //   let currUser = this.userData.find((it: any) => it.id == userId)
-
-  //   if (userId != expenseUserId) {
-  //     if (!currUser?.debts) {
-  //       currUser.debts = {}
-  //     }
-  //     if (!currUser?.debts[expenseUserId]) {
-  //       currUser.debts[expenseUserId] = 0
-  //     }
-  //     currUser['debts'] = {
-  //       ...currUser['debts'],
-  //       [expenseUserId]: currUser['debts'][expenseUserId] + Math.abs(amount)
-  //     }
-  //   }
-  // }
-
   addBalanceToUser(userId: string, credit: number) {
-    let user = this.userData.find((it: any) => it.id == userId)
+    let user = this._findUserById(userId);
     if (user) {
       let amount = +((+user['amount'] ?? 0) + credit).toFixed(2);
       if (Math.abs(amount) < 0.02) {
@@ -187,10 +174,9 @@ export class MainComponent implements OnInit {
     this.data.expenses.forEach((it: any) => {
       for (const [userId, credit] of Object.entries(it.credit)) {
         this.addBalanceToUser(userId, credit as number)
-        // this.addDebtTrackerToUser(it.paidBy.id, userId, credit)
 
         let expenseUserId = it.paidBy.id
-        let currUser = this.userData.find((user: any) => user.id == userId)
+        let currUser = this._findUserById(userId);
         if (userId != expenseUserId) {
 
           if (!currUser?.debts) {
@@ -215,7 +201,7 @@ export class MainComponent implements OnInit {
         let currentUserId = user.id;
         for (const [userId, debt] of Object.entries(user['debts'])) {
           // find userId in userData
-          let currUser = this.userData.find((it: any) => it.id == userId)
+          let currUser = this._findUserById(userId);
           // make isOwed object
           if (!currUser.isOwed) {
             currUser['isOwed'] = {}
@@ -277,7 +263,7 @@ export class MainComponent implements OnInit {
     this.userData.forEach((user: User) => {
       if (user['isOwed']) {
         for (const [userId, val] of Object.entries(user['isOwed'])) {
-          let currUser = this.userData.find((it: any) => it.id == userId)
+          let currUser = this._findUserById(userId);
 
           if (!user.isOwedMap) {
             user['isOwedMap'] = {}
@@ -292,7 +278,7 @@ export class MainComponent implements OnInit {
 
       if (user['debts']) {
         for (const [userId, val] of Object.entries(user['debts'])) {
-          let currUser = this.userData.find((it: any) => it.id == userId)
+          let currUser = this._findUserById(userId);
 
           if (!user.debtsMap) {
             user['debtsMap'] = {}
@@ -306,6 +292,11 @@ export class MainComponent implements OnInit {
       }
     })
   }
+
+  _findUserById(userId : string) {
+    return this.userData.find((it: User) => it.id == userId)
+  }
+
 
   _intersect(o1: any, o2: any) {
     return Object.keys(o1).filter(k => Object.hasOwn(o2, k))

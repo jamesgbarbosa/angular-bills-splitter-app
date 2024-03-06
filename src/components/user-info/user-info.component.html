@@ -1,7 +1,7 @@
 <div id="information-panel">
     <!-- List of uses involved -->
     <div class="flex">
-        <div class="info-item" *ngFor="let user of userData; let l = last">
+        <div class="info-item" *ngFor="let user of userData">
             <div>
                 <h3>{{user.name}}
                     <span *ngIf="user.amount != 0; else allSettled" [ngClass]="user.amount > 0 ? 'text-success':'text-danger'">
