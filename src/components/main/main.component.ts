@@ -50,36 +50,6 @@ export class MainComponent implements OnInit {
       expenses: []
     }
 
-  openAddTransactionModal() {
-    const dialogRef = this.dialog.open(AddTransactionModalComponent, {
-      data: { users: this.data.users, transactionTypes: this.transactionTypes }
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        let expense = this._initializeExpense(result);
-        this.data.expenses = [expense, ...this.data.expenses]
-        this.initialize();
-      }
-    });
-  }
-
-  settlePayment() {
-    let usersWithDebts = this.userData.filter((it: any) => (it?.debts && Object.keys(it?.debts).length > 0))
-    const dialogRef = this.dialog.open(SettlePaymentModalComponent, {
-      data: { users: this.userData, usersWithDebts: usersWithDebts, transactionTypes: this.transactionTypes }
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        result.transactionType = SETTLE;
-        let expense = this._initializeExpense(result);
-        this.data.expenses = [expense, ...this.data.expenses]
-        this.initialize();
-      }
-    });
-  }
-
   _initializeExpense(result: any) {
     let paidBy = this.data.users.find(it => it.id == result.userId)
     let expense: Expense = {
@@ -141,6 +111,9 @@ export class MainComponent implements OnInit {
   }
 
   initialize() {
+    // Reset userData to original state
+    this.userData = this.data.users.map(it => ({ ...it, amount: 0 }))
+    this.initializeAmountBalancePerUser();
     this.initializeDebtsObject();
     this.initializeIsOwedObject();
 
@@ -148,16 +121,7 @@ export class MainComponent implements OnInit {
     this.initInfoMapping();
   }
 
-  _checkAmount(data: any, userId: string) {
-    try {
-      return data[userId];
-    } catch (err) {
-      console.log("ERROR", data)
-      return 0;
-    }
-  }
-
-  addBalanceToUser(userId: string, credit: number) {
+  _addBalanceToUser(userId: string, credit: number) {
     let user = this._findUserById(userId);
     if (user) {
       let amount = +((+user['amount'] ?? 0) + credit).toFixed(2);
@@ -168,17 +132,21 @@ export class MainComponent implements OnInit {
     }
   }
 
-  initializeDebtsObject() {
-    this.userData = this.data.users.map(it => ({ ...it, amount: 0 }))
-
+  initializeAmountBalancePerUser() {
     this.data.expenses.forEach((it: any) => {
       for (const [userId, credit] of Object.entries(it.credit)) {
-        this.addBalanceToUser(userId, credit as number)
+        this._addBalanceToUser(userId, credit as number)
+      }
+    })
+  }
+
+  initializeDebtsObject() {
+    this.data.expenses.forEach((it: any) => {
+      for (const [userId, credit] of Object.entries(it.credit)) {
 
         let expenseUserId = it.paidBy.id
         let currUser = this._findUserById(userId);
         if (userId != expenseUserId) {
-
           if (!currUser?.debts) {
             currUser.debts = {}
           }
@@ -194,19 +162,16 @@ export class MainComponent implements OnInit {
       }
     })
   }
+
   initializeIsOwedObject() {
-    // Initialize isOwed object
     this.userData.forEach((user: User) => {
       if (user['debts']) {
         let currentUserId = user.id;
         for (const [userId, debt] of Object.entries(user['debts'])) {
-          // find userId in userData
           let currUser = this._findUserById(userId);
-          // make isOwed object
           if (!currUser.isOwed) {
             currUser['isOwed'] = {}
           }
-          // attach currentUserId : currentUserId + debt
           currUser.isOwed = {
             ...currUser.isOwed,
             [currentUserId]: (currUser[userId] || 0) + debt
@@ -250,12 +215,6 @@ export class MainComponent implements OnInit {
         }
       }
     })
-
-    this.userData.forEach((user: any) => {
-      if (user['isOwed']) {
-        user['totalOwed'] = Object.entries(user['isOwed']).reduce((val, [key, value]) => { return val + (value as number) }, 0)
-      }
-    })
   }
 
   initInfoMapping() {
@@ -293,7 +252,37 @@ export class MainComponent implements OnInit {
     })
   }
 
-  _findUserById(userId : string) {
+  onAddTransactionModal() {
+    const dialogRef = this.dialog.open(AddTransactionModalComponent, {
+      data: { users: this.data.users, transactionTypes: this.transactionTypes }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        let expense = this._initializeExpense(result);
+        this.data.expenses = [expense, ...this.data.expenses]
+        this.initialize();
+      }
+    });
+  }
+
+  onSettlePaymentModal() {
+    let usersWithDebts = this.userData.filter((it: any) => (it?.debts && Object.keys(it?.debts).length > 0))
+    const dialogRef = this.dialog.open(SettlePaymentModalComponent, {
+      data: { users: this.userData, usersWithDebts: usersWithDebts, transactionTypes: this.transactionTypes }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        result.transactionType = SETTLE;
+        let expense = this._initializeExpense(result);
+        this.data.expenses = [expense, ...this.data.expenses]
+        this.initialize();
+      }
+    });
+  }
+
+  _findUserById(userId: string) {
     return this.userData.find((it: User) => it.id == userId)
   }
 
