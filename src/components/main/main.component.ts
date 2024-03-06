@@ -102,7 +102,7 @@ export class MainComponent implements OnInit {
   initialize() {
     this.initializeDebtsObject();
     this.initializeIsOwedObject();
-
+    
     this.simplifyDebtBalance();
     this.initInfoMapping();
   }
@@ -190,6 +190,20 @@ export class MainComponent implements OnInit {
   }
 
   simplifyDebtBalance() {
+    // Simplify difference between debts and owes
+    this.userData.forEach((it: any) => {
+      if (it.debts && it.isOwed) {
+        let commonKeys = this._intersect(it.debts, it.isOwed)
+        commonKeys.forEach((common) => {
+          let d = Math.abs(it.debts[common])
+          let o = Math.abs(it.isOwed[common])
+          let minNumber = Math.min(d, o)
+          it.debts[common] = d - minNumber;
+          it.isOwed[common] = o - minNumber;
+        })
+      }
+    })
+    
     // Remove 0's from records
     this.userData.forEach((user: any) => {
       if (user['debts']) {
@@ -249,5 +263,9 @@ export class MainComponent implements OnInit {
         }
       }
     })
+  }
+
+  _intersect(o1: any, o2: any) {
+    return Object.keys(o1).filter(k => Object.hasOwn(o2, k))
   }
 }
