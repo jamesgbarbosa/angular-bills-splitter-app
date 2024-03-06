@@ -12,8 +12,13 @@ import { AbsPipe } from '../../pipes/abs.pipe';
 export class UserInfoComponent {
   @Input() userData: any;
   @Output() onAddTransaction = new EventEmitter<any>();
+  @Output() onSettlePayment = new EventEmitter<any>();
 
   addTransaction() {
     this.onAddTransaction.emit();
+  }
+
+  settlePayment() {
+    this.onSettlePayment.emit();
   }
 }

@@ -7,6 +7,7 @@ import { Expense } from '../../model/expenses.model';
 import { MatDialog } from '@angular/material/dialog';
 import { AddTransactionModalComponent } from '../add-transaction-modal/add-transaction-modal.component';
 import { OWED_FULL_AMOUNT, SPLIT_EQUALLY } from '../../constants/transaction-types.constant';
+import { SettlePaymentModalComponent } from '../settle-payment-modal/settle-payment-modal.component';
 
 @Component({
   selector: 'app-main',
@@ -65,6 +66,30 @@ export class MainComponent implements OnInit {
         this.initialize();
       }
     });
+  }
+
+  settlePayment() {
+      let usersWithDebts = this.userData.filter((it: any) => (it?.debts && Object.keys(it?.debts).length > 0))
+      const dialogRef = this.dialog.open(SettlePaymentModalComponent, {
+        data: { users: this.userData, usersWithDebts: usersWithDebts, transactionTypes: this.transactionTypes }
+      });
+  
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          // let paidBy = this.data.users.find(it => it.id == result.userId)
+  
+          // let expense: Expense = {
+          //   ...result,
+          //   id: new Date().getMilliseconds(),
+          //   paidBy: paidBy,
+          //   dateCreated: new Date()
+          // }
+          // expense = this._initializeCredit(expense);
+  
+          // this.data.expenses = [expense, ...this.data.expenses]
+          this.initialize();
+        }
+      });
   }
 
   _initializeCredit(expense: Expense) {
@@ -203,7 +228,7 @@ export class MainComponent implements OnInit {
         })
       }
     })
-    
+
     // Remove 0's from records
     this.userData.forEach((user: any) => {
       if (user['debts']) {

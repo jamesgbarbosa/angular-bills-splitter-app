@@ -1,0 +1,33 @@
+<div class="modal-container">
+    <h3>Settle Payment</h3>
+    <form [formGroup]="form">
+        <div class="mb-3">
+            <label for="userId" class="form-label">User</label>
+            <select (change)="onChangeUser($event)" class="form-control" formControlName="userId" >
+                <option *ngFor="let u of usersWithDebts; let i = index" [value]="u.id">
+                     {{u.name}}
+                </option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="paymentTo" class="form-label">Payment To</label>
+            <select (change)="onChangePaymentTo($event)" class="form-control" formControlName="paymentTo" >
+                <option *ngFor="let u of form.get('paymentToList').value; let i = index" [value]="u.id">
+                     {{u.name}}
+                </option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="amountPaid" class="form-label">Amount</label>
+            <input id="amountPaid" class="form-control" formControlName="amountPaid" type="number" />
+            <span class="text-danger" *ngIf="form.get('amountPaid').hasError('max')">
+                Total debt is only ${{form.get('amountPaid').errors?.max?.max}} 
+            </span>
+            <span class="text-danger" *ngIf="form.get('amountPaid').dirty && form.get('amountPaid').hasError('min')">
+                Invalid input
+            </span>
+        </div>
+        <button [disabled]="form.invalid" (click)="add()">Add</button>
+        <button (click)="close()">Close</button>
+    </form>
+</div>

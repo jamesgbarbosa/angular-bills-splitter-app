@@ -1,4 +1,4 @@
-<app-user-info [userData]="userData" (onAddTransaction)="openAddTransactionModal()"/>
+<app-user-info [userData]="userData" (onSettlePayment)="settlePayment()" (onAddTransaction)="openAddTransactionModal()"/>
 <app-expenses *ngIf="data?.expenses?.length; else noData" [data]="data?.expenses"/>
 <!-- <pre>
     {{data?.expenses | json}}
