@@ -58,12 +58,12 @@ export class MainComponent implements OnInit {
       paidBy: paidBy,
       dateCreated: new Date(),
       amountPaid: result.amountPaid,
+      name : result.name,
       transactionType: result.transactionType
     }
 
     switch (expense.transactionType) {
       case SPLIT_EQUALLY: {
-        expense.name = result.name;
         let numberOfUsers = this.data.users.length;
         let payeePart = +((+expense.amountPaid * (numberOfUsers - 1)) / numberOfUsers)
         let otherUsersPart = +(((+expense.amountPaid) / numberOfUsers) * -1)
@@ -80,7 +80,6 @@ export class MainComponent implements OnInit {
         break;
       }
       case OWED_FULL_AMOUNT: {
-        expense.name = result.name;
         let numberOfUsers = this.data.users.length;
         let part = +(+expense.amountPaid / (numberOfUsers - 1))
         let payeePart = +expense.amountPaid;
@@ -118,7 +117,7 @@ export class MainComponent implements OnInit {
     this.initializeIsOwedObject();
 
     this.simplifyDebtBalance();
-    this.initInfoMapping();
+    this.updateKeys();
   }
 
   _addBalanceToUser(userId: string, credit: number) {
@@ -217,36 +216,27 @@ export class MainComponent implements OnInit {
     })
   }
 
-  initInfoMapping() {
-    // User mapping
+  updateKeys() {
     this.userData.forEach((user: User) => {
       if (user['isOwed']) {
         for (const [userId, val] of Object.entries(user['isOwed'])) {
           let currUser = this._findUserById(userId);
-
-          if (!user.isOwedMap) {
-            user['isOwedMap'] = {}
-          }
-
-          user.isOwedMap = {
-            ...user.isOwedMap,
+          user.isOwed = {
+            ...user.isOwed,
             [currUser.name]: user.isOwed[userId]
           }
+          delete user.isOwed[currUser.id]
         }
       }
 
       if (user['debts']) {
         for (const [userId, val] of Object.entries(user['debts'])) {
           let currUser = this._findUserById(userId);
-
-          if (!user.debtsMap) {
-            user['debtsMap'] = {}
-          }
-
-          user.debtsMap = {
-            ...user.debtsMap,
+          user.debts = {
+            ...user.debts,
             [currUser.name]: user.debts[userId]
           }
+          delete user.debts[currUser.id]
         }
       }
     })
