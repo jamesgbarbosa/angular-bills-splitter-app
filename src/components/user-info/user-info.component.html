@@ -9,12 +9,12 @@
                     </span>
                 </h3>
 
-                <div *ngFor="let item of user.debts | keyvalue">
+                <div *ngFor="let item of user.debtsMap | keyvalue">
                     You owe <b>${{(item.value | abs | number : '1.2-2')}}</b> to <b class="text-danger">{{item.key}}</b>
                 </div>
 
 
-                <div *ngFor="let item of user.isOwed | keyvalue">
+                <div *ngFor="let item of user.isOwedMap | keyvalue">
                     <b class="text-success">{{item.key}}</b> owe you <b>${{item.value | abs | number : '1.2-2'}}</b>
                 </div>
             </div>

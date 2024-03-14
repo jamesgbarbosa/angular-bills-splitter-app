@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { ExpensesComponent } from '../expenses/expenses.component';
 import { CommonModule } from '@angular/common';
 import { UserInfoComponent } from '../user-info/user-info.component';
@@ -17,6 +17,7 @@ import { SettlePaymentModalComponent } from '../settle-payment-modal/settle-paym
   styleUrl: './main.component.scss'
 })
 export class MainComponent implements OnInit {
+  @Input() users : User[] = []
   isModal = true;
   userData: any = []
 
@@ -34,11 +35,7 @@ export class MainComponent implements OnInit {
 
   initializeUsers() {
     this.data.users = [
-      { id: "user1", name: 'James' },
-      { id: "user2", name: 'Jen' },
-      { id: "user3", name: 'Jackson' },
-      // { id: "user4", name: 'Jane' },
-      // { id: "user5", name: 'Bob' },
+      ...this.users
     ]
   }
 
@@ -50,10 +47,46 @@ export class MainComponent implements OnInit {
       expenses: []
     }
 
+  computeSplitEquallyCreditObject(expense: Expense, numberOfUsers: number): any {
+    let payeePart = +((+expense.amountPaid * (numberOfUsers - 1)) / numberOfUsers)
+    let otherUsersPart = +(((+expense.amountPaid) / numberOfUsers) * -1)
+
+    return this.data.users
+      .reduce((obj, it) => {
+        let amount = expense.paidBy?.id == it.id ? payeePart : otherUsersPart;
+        return {
+          ...obj,
+          [it.id]: +amount.toFixed(2)
+        }
+      }, {})
+  }
+
+  computeOwedFullAmountCreditObject(expense: Expense, numberOfUsers: number): any {
+        let part = +(+expense.amountPaid / (numberOfUsers - 1))
+        let payeePart = +expense.amountPaid;
+        let otherUsersPart = part * -1;
+
+        return this.data.users
+          .reduce((obj, it) => {
+            let amount = expense.paidBy?.id == it.id ? payeePart : otherUsersPart;
+            return {
+              ...obj,
+              [it.id]: +amount.toFixed(2)
+            }
+          }, {})
+  }
+
+  computeSettleCreditObject(sendee: string, reciever: string, amount: number): any {
+    return {
+      [sendee]: amount,
+      [reciever]: -Math.abs(amount),
+    }
+  }
+
   _initializeExpense(result: any) {
     let paidBy = this.data.users.find(it => it.id == result.userId)
     let expense: Expense = {
-      userId: '',
+      // userId: paidBy.id,
       id: new Date().getMilliseconds() + "",
       paidBy: paidBy,
       dateCreated: new Date(),
@@ -61,46 +94,20 @@ export class MainComponent implements OnInit {
       name : result.name,
       transactionType: result.transactionType
     }
-
     switch (expense.transactionType) {
       case SPLIT_EQUALLY: {
-        let numberOfUsers = this.data.users.length;
-        let payeePart = +((+expense.amountPaid * (numberOfUsers - 1)) / numberOfUsers)
-        let otherUsersPart = +(((+expense.amountPaid) / numberOfUsers) * -1)
-
-        expense.credit = this.data.users
-          .reduce((obj, it) => {
-            let amount = expense.paidBy?.id == it.id ? payeePart : otherUsersPart;
-            return {
-              ...obj,
-              [it.id]: +amount.toFixed(2)
-            }
-          }, {})
-
+        expense.credit = this.computeSplitEquallyCreditObject(expense, this.data.users.length)
         break;
       }
       case OWED_FULL_AMOUNT: {
-        let numberOfUsers = this.data.users.length;
-        let part = +(+expense.amountPaid / (numberOfUsers - 1))
-        let payeePart = +expense.amountPaid;
-        let otherUsersPart = part * -1;
-
-        expense.credit = this.data.users
-          .reduce((obj, it) => {
-            let amount = expense.paidBy?.id == it.id ? payeePart : otherUsersPart;
-            return {
-              ...obj,
-              [it.id]: +amount.toFixed(2)
-            }
-          }, {})
+        expense.credit = this.computeOwedFullAmountCreditObject(expense, this.data.users.length )
         break;
       }
       case SETTLE: {
         let paymentTo = this.data.users.find(it => it.id == result.paymentTo)
         expense.name = 'Settle payment to user ' + `${paymentTo?.name}(${paymentTo?.id})`
-        expense.credit = {
-          [result.userId]: result.amountPaid,
-          [result.paymentTo]: -Math.abs(result.amountPaid),
+        if (paymentTo) {
+          expense.credit = this.computeSettleCreditObject(result.userId, paymentTo.id, result.amountPaid)
         }
         break;
       }
@@ -221,22 +228,22 @@ export class MainComponent implements OnInit {
       if (user['isOwed']) {
         for (const [userId, val] of Object.entries(user['isOwed'])) {
           let currUser = this._findUserById(userId);
-          user.isOwed = {
-            ...user.isOwed,
+          user['isOwedMap'] = {
+            ...user.isOwedMap,
             [currUser.name]: user.isOwed[userId]
           }
-          delete user.isOwed[currUser.id]
+          delete user.isOwedMap[currUser.id]
         }
       }
 
       if (user['debts']) {
         for (const [userId, val] of Object.entries(user['debts'])) {
           let currUser = this._findUserById(userId);
-          user.debts = {
-            ...user.debts,
+          user['debtsMap'] = {
+            ...user.debtsMap,
             [currUser.name]: user.debts[userId]
           }
-          delete user.debts[currUser.id]
+          delete user.debtsMap[currUser.id]
         }
       }
     })
