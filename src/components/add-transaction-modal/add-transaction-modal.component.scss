@@ -1,3 +1,7 @@
+@import 'node_modules/bootstrap/scss/_functions.scss';
+@import 'node_modules/bootstrap/scss/_variables.scss';
+@import 'node_modules/bootstrap/scss/_mixins.scss';
+
 .modal {
     &-container {
         padding: 1rem;
@@ -7,4 +11,13 @@
 
 button {
     margin: 0.25rem;
+}
+
+@include media-breakpoint-down(sm) {
+    .modal {
+        &-container {
+            padding: 1rem;
+            width: 18rem;
+        }
+    }
 }
