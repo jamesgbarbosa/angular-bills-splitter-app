@@ -8,16 +8,17 @@ import { MatDialog } from '@angular/material/dialog';
 import { AddTransactionModalComponent } from '../add-transaction-modal/add-transaction-modal.component';
 import { OWED_FULL_AMOUNT, SETTLE, SPLIT_EQUALLY } from '../../constants/transaction-types.constant';
 import { SettlePaymentModalComponent } from '../settle-payment-modal/settle-payment-modal.component';
+import { Project } from '../../model/project.model';
 
 @Component({
-  selector: 'app-main',
+  selector: 'project-detail',
   standalone: true,
   imports: [ExpensesComponent, UserInfoComponent, CommonModule],
-  templateUrl: './main.component.html',
-  styleUrl: './main.component.scss'
+  templateUrl: './project-detail.component.html',
+  styleUrl: './project-detail.component.scss'
 })
-export class MainComponent implements OnInit {
-  @Input() users : User[] = []
+export class ProjectDetailComponent implements OnInit {
+  @Input() data!: Project;
   isModal = true;
   userData: any = []
 
@@ -29,23 +30,23 @@ export class MainComponent implements OnInit {
   constructor(private dialog: MatDialog) { }
 
   ngOnInit(): void {
-    this.initializeUsers();
+    // this.initializeUsers();
     this.initialize();
   }
 
-  initializeUsers() {
-    this.data.users = [
-      ...this.users
-    ]
-  }
+  // initializeUsers() {
+  //   this.data.users = [
+  //     ...this.users
+  //   ]
+  // }
 
-  data: {
-    users: User[],
-    expenses: Expense[]
-  } = {
-      users: [],
-      expenses: []
-    }
+  // data: {
+  //   users: User[],
+  //   expenses: Expense[]
+  // } = {
+  //     users: [],
+  //     expenses: []
+  //   }
 
   computeSplitEquallyCreditObject(expense: Expense, numberOfUsers: number): any {
     let payeePart = +((+expense.amountPaid * (numberOfUsers - 1)) / numberOfUsers)

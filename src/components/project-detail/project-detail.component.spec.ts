@@ -1,20 +1,32 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { MainComponent } from './main.component';
+import { ProjectDetailComponent } from './project-detail.component';
 import { Expense } from '../../model/expenses.model';
 
 describe('MainComponent', () => {
-  let component: MainComponent;
-  let fixture: ComponentFixture<MainComponent>;
+  let component: ProjectDetailComponent;
+  let fixture: ComponentFixture<ProjectDetailComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MainComponent]
+      imports: [ProjectDetailComponent]
     })
       .compileComponents();
 
-    fixture = TestBed.createComponent(MainComponent);
+    fixture = TestBed.createComponent(ProjectDetailComponent);
     component = fixture.componentInstance;
+    component.data = {
+      projectName: 'New Project',
+      users: [
+        { id: "user1", name: 'James' },
+        { id: "user2", name: 'Jen' },
+        { id: "user3", name: 'Jackson' },
+        // { id: "user4", name: 'Jane' },
+        // { id: "user5", name: 'Bob' },
+      ],
+      dateCreated: new Date(),
+      expenses: []
+    }
     // **Importance of detectChanges()
     //  Delayed change detection is intentional 
     //  and useful. It gives the tester an opportunity
@@ -29,7 +41,6 @@ describe('MainComponent', () => {
 
   it('#initializeUsers() should create 3 users', () => {
     const comp = component;
-    comp.initializeUsers();
     expect(comp.userData.length).toBe(3)
   })
 
