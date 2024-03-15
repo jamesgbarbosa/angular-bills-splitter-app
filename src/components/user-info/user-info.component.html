@@ -15,7 +15,7 @@
 
 
                 <div *ngFor="let item of user.isOwedMap | keyvalue">
-                    <b class="text-success">{{item.key}}</b> owe you <b>${{item.value | abs | number : '1.2-2'}}</b>
+                    <b class="text-success">{{item.key}}</b> owes you <b>${{item.value | abs | number : '1.2-2'}}</b>
                 </div>
             </div>
         </div>

@@ -6,6 +6,7 @@ export interface Expense {
     dateCreated: Date | string,
     name?: string,
     paidBy: User | undefined,
+    settlementTo?: string,
     credit?: any, // {<userId>, <credit/debit balance>, ... }
     amountPaid: number,
     transactionType?: string
