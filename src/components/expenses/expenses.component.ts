@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { Expense } from '../../model/expenses.model';
 
 @Component({
@@ -12,4 +12,9 @@ import { Expense } from '../../model/expenses.model';
 export class ExpensesComponent {
   
   @Input() data: Expense[] | any;
+  @Output() onDeleteExpense = new EventEmitter<string>();
+
+  deleteExpense(id: string) {
+    this.onDeleteExpense.emit(id);
+  }
 }

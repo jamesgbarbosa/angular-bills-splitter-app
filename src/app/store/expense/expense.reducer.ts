@@ -1,27 +1,30 @@
 import { createReducer, on } from "@ngrx/store";
-import { loadState, owedFullAmount, settlePayment, splitEqually } from "./expense.action";
+import { deleteExpenseById, loadState, owedFullAmount, settlePayment, splitEqually } from "./expense.action";
 import { Expense } from "../../../model/expenses.model";
 import { User } from "../../../model/user.model";
 
 const expenseInitialState: { users: User[], expenses: Expense[] } = {
     users: [
-        
+        { id: "user1", name: 'James', amount: 0 },
+        { id: "user2", name: 'Jen', amount: 0 },
+        { id: "user3", name: 'Jackson', amount: 0 }
     ],
     expenses: [
     ]
 }
 
 export const expenseReducer = createReducer(expenseInitialState,
-    on(loadState, (state, action) => { 
-     let newState = {...action.payload}
-     initializeAmountBalancePerUser(newState);
-     initializeDebtsObject(newState);
-     initializeIsOwedObject(newState);
-     simplifyDebtBalance(newState)
-     updateUserIdToName(newState);
-     return newState;
+    on(loadState, (state, action) => {
+        let newState = { ...action.payload }
+        initializeAmountBalancePerUser(newState);
+        initializeDebtsObject(newState);
+        initializeIsOwedObject(newState);
+        simplifyDebtBalance(newState)
+        updateUserIdToName(newState);
+
+        return newState;
     }),
-    
+
     on(owedFullAmount, (state, action) => {
         const expense = action.payload;
         const numberOfUsers = state.users.length;
@@ -41,7 +44,7 @@ export const expenseReducer = createReducer(expenseInitialState,
 
         let newState = {
             users: state.users,
-            expenses: [{...action.payload, credit} , ...state.expenses]
+            expenses: [{ ...action.payload, credit }, ...state.expenses]
         }
 
         initializeAmountBalancePerUser(newState);
@@ -69,7 +72,7 @@ export const expenseReducer = createReducer(expenseInitialState,
 
         let newState = {
             users: state.users,
-            expenses: [{...action.payload, credit}, ...state.expenses]
+            expenses: [{ ...action.payload, credit }, ...state.expenses]
         }
 
         initializeAmountBalancePerUser(newState);
@@ -104,6 +107,17 @@ export const expenseReducer = createReducer(expenseInitialState,
             expenses: [expense, ...state.expenses]
         }
 
+        initializeAmountBalancePerUser(newState);
+        initializeDebtsObject(newState);
+        initializeIsOwedObject(newState);
+        simplifyDebtBalance(newState)
+        updateUserIdToName(newState);
+        return newState;
+    }),
+
+    on(deleteExpenseById, (state, action) => {
+        const id = action.payload;
+        const newState = {...state, expenses: state.expenses.filter(it => it.id != id)}
         initializeAmountBalancePerUser(newState);
         initializeDebtsObject(newState);
         initializeIsOwedObject(newState);
@@ -164,7 +178,7 @@ const initializeAmountBalancePerUser = (project: { users: User[], expenses: Expe
             return +(total + (expense.credit[id] ?? 0)).toFixed(2)
         }, 0)
     }
-    
+
     project.users = project.users.map((it: any) => {
         return { ...it, amount: calculateTotalAmount(it.id) }
     })
@@ -234,7 +248,6 @@ const updateUserIdToName = (project: { users: User[], expenses: Expense[] }) => 
         return { ...user, debtsMap, isOwedMap }
     })
 }
-
 
 const _intersect = (o1: any, o2: any) => {
     return Object.keys(o1).filter(k => Object.hasOwn(o2, k))

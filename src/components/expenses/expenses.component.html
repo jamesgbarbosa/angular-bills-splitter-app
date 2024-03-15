@@ -2,14 +2,19 @@
     <table class="table">
         <thead>
             <tr>
+                <th scope="col">ID</th>
                 <th scope="col">User</th>
                 <th scope="col">Transaction Name</th>
                 <th scope="col">Transaction Type</th>
                 <th scope="col">Price</th>
+                <th scope="col">Actions</th>
             </tr>
         </thead>
         <tbody>
             <tr *ngFor="let it of data">
+                <td>
+                    {{it.id}}
+                </td>
                 <td>
                     {{it.paidBy?.name}}
                 </td>
@@ -21,6 +26,9 @@
                 </td>
                 <td>
                     $ {{it.amountPaid}}
+                </td>
+                <td>
+                    <button class="btn btn-danger" (click)="deleteExpense(it.id)">Delete</button>
                 </td>
             </tr>
         </tbody>

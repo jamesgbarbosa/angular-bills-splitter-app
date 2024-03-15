@@ -21,3 +21,8 @@ export const loadState = createAction(
     '[Expense] Load State',
     props<{payload: {users: User[], expenses: Expense[]}}>()
 )
+
+export const deleteExpenseById = createAction(
+    '[Expense] Delete Expense',
+    props<{payload: string}>()
+)

@@ -3,7 +3,7 @@
     <button (click)="loadState()">Load State</button>
     <app-user-info [userData]="expenseReducerOutput.users" (onSettlePayment)="onSettlePaymentModal()"
         (onAddTransaction)="onAddTransactionModal()" />
-    <app-expenses *ngIf="expenseReducerOutput?.expenses?.length; else noData" [data]="expenseReducerOutput?.expenses" />
+    <app-expenses (onDeleteExpense)="deleteExpense($event)" *ngIf="expenseReducerOutput?.expenses?.length; else noData" [data]="expenseReducerOutput?.expenses" />
     <!-- <pre>
     {{data?.expenses | json}}
     </pre> -->

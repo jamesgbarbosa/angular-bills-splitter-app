@@ -10,7 +10,7 @@ import { OWED_FULL_AMOUNT, SETTLE, SPLIT_EQUALLY } from '../../constants/transac
 import { SettlePaymentModalComponent } from '../settle-payment-modal/settle-payment-modal.component';
 import { Project } from '../../model/project.model';
 import { Store } from '@ngrx/store';
-import { loadState, owedFullAmount, settlePayment, splitEqually } from '../../app/store/expense/expense.action';
+import { deleteExpenseById, loadState, owedFullAmount, settlePayment, splitEqually } from '../../app/store/expense/expense.action';
 
 @Component({
   selector: 'project-detail',
@@ -177,5 +177,11 @@ export class ProjectDetailComponent implements OnInit {
         this._initializeExpense(result);
       }
     });
+  }
+
+  deleteExpense(id: string) {
+    if (confirm(`Are you sure you want to delete expense: ${id}?`) == true) {
+      this.store.dispatch(deleteExpenseById({payload: id}))
+    } 
   }
 }
