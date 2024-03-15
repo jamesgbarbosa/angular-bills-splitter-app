@@ -1,0 +1,20 @@
+<div class="buttons-container btn-toolbar">
+    <button type="button" class="btn btn-primary me-1">Create New Project</button>
+</div>
+
+<div id="projects">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Project Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let it of projects">
+                <td>
+                    {{it.name}}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
