@@ -1,11 +1,12 @@
 import { Expense } from "../../../model/expenses.model";
+import { Project } from "../../../model/project.model";
 import { User } from "../../../model/user.model";
 
-export const initializeIsOwedAndDebtsMap = (project: { users: User[], expenses: Expense[] }) => {
+export const initializeIsOwedAndDebtsMap = (project: Project) => {
     initializeDebtsObject(project)
     initializeIsOwedObject(project)
 }
-const initializeIsOwedObject = (project: { users: User[], expenses: Expense[] }) => {
+const initializeIsOwedObject = (project: Project) => {
     const calculateOwedMap = (owedUser: User) => {
         let totalOwed = project.users.reduce((total, user: User) => {
             // per expense, if id owns the expense, skip, else check debts
@@ -28,7 +29,7 @@ const initializeIsOwedObject = (project: { users: User[], expenses: Expense[] })
     })
 }
 
-const initializeDebtsObject = (project: { users: User[], expenses: Expense[] }, name = "Else") => {
+const initializeDebtsObject = (project: Project, name = "Else") => {
     console.log(name)
     const calculateDebtsMap = (user: User) => {
         let totalDebt = project.expenses.reduce((total, expense: Expense) => {
@@ -50,7 +51,7 @@ const initializeDebtsObject = (project: { users: User[], expenses: Expense[] }, 
     })
 }
 
-export const initializeAmountBalancePerUser = (project: { users: User[], expenses: Expense[] }) => {
+export const initializeAmountBalancePerUser = (project: Project) => {
     const calculateTotalAmount = (id: string) => {
         return project.expenses.reduce((total, expense) => {
             return +(total + (expense.credit[id] ?? 0)).toFixed(2)
@@ -62,7 +63,7 @@ export const initializeAmountBalancePerUser = (project: { users: User[], expense
     })
 }
 
-export const simplifyDebtBalance = (project: { users: User[], expenses: Expense[] }) => {
+export const simplifyDebtBalance = (project: Project) => {
     // Simplify difference between debts and owes
     project.users.forEach((it: any) => {
         if (it.debts && it.isOwed) {
@@ -99,7 +100,7 @@ export const simplifyDebtBalance = (project: { users: User[], expenses: Expense[
     })
 }
 
-export const updateUserIdToName = (project: { users: User[], expenses: Expense[] }) => {
+export const updateUserIdToName = (project: Project) => {
     const users = [...project.users];
     project.users = project.users.map((user: User) => {
         let debtsMap: any = {};
