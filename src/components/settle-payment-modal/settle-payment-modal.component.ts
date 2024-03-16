@@ -23,7 +23,7 @@ export class SettlePaymentModalComponent {
       userId: ['', Validators.required],
       paymentTo: ['', Validators.required],
       paymentToList: [],
-      amountPaid: [0, [Validators.required, Validators.min(1)]]
+      amountPaid: [0, [Validators.required, Validators.min(0.1)]]
     })
   }
 
@@ -40,7 +40,7 @@ export class SettlePaymentModalComponent {
 
   onChangePaymentTo(event: any) {
     let maxDebt = Math.abs((this.form.get('paymentToList').value).find((it: any) => it.id == event.target.value).debt)
-    this.form.get('amountPaid').setValidators([Validators.required, Validators.min(1), Validators.max(maxDebt)])
+    this.form.get('amountPaid').setValidators([Validators.required, Validators.min(0.1), Validators.max(maxDebt)])
     this.form.get('amountPaid').updateValueAndValidity();
     this.form.get('amountPaid').setValue(maxDebt)
   }
