@@ -1,15 +1,27 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideMockStore } from '@ngrx/store/testing';
+import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { ProjectDetailComponent } from './project-detail.component';
 
-describe('MainComponent', () => {
+describe('ProjectDetailComponent', () => {
   let component: ProjectDetailComponent;
   let fixture: ComponentFixture<ProjectDetailComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ProjectDetailComponent],
-      providers: [provideMockStore({})]
+      providers: [
+        provideMockStore({
+          selectors: [
+            {
+              selector: 'expense',
+              value: {
+                users: [],
+                expenses: []
+              },
+            },
+          ],
+        }),
+      ]
     })
       .compileComponents();
 
@@ -21,11 +33,14 @@ describe('MainComponent', () => {
     //  to inspect and change the state of the component 
     //  before Angular initiates data binding and calls lifecycle hooks
     
-    // fixture.detectChanges();
   });
 
   it('should create', () => {
-    expect(true).toBeTruthy();
+    fixture.detectChanges();
+    let expenses = component.expenseReducerOutput.expenses
+    let users = component.expenseReducerOutput.users
+    expect(expenses.length).toBe(0)
+    expect(users.length).toBe(0)
   });
 
 });

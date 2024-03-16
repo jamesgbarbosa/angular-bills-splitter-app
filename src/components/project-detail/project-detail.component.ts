@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, ViewChild, inject } from '@angular/core';
 import { ExpensesComponent } from '../expenses/expenses.component';
 import { CommonModule } from '@angular/common';
 import { UserInfoComponent } from '../user-info/user-info.component';
@@ -31,9 +31,10 @@ export class ProjectDetailComponent implements OnInit {
     { id: OWED_FULL_AMOUNT, name: "Owed full amount" }
   ]
 
-  constructor(private dialog: MatDialog, private store: Store<any>) {
-    
-  }
+  dialog = inject(MatDialog)
+  store = inject(Store<any>)
+
+  constructor() {}
 
   loadState() {
     const state = {
