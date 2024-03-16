@@ -31,6 +31,9 @@
                     <button class="btn btn-danger" (click)="deleteExpense(it.id)">Delete</button>
                 </td>
             </tr>
+            <tr *ngIf="data?.length == 0">
+                <td colspan="6" style="text-align: center;">No Data</td>
+            </tr>
         </tbody>
     </table>
 </div>

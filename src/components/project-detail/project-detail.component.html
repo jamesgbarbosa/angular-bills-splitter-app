@@ -3,7 +3,7 @@
     <!-- <button (click)="loadState()">Load State</button> -->
     <app-user-info [project]="expenseReducerOutput" (onSettlePayment)="onSettlePaymentModal()"
         (onAddTransaction)="onAddTransactionModal()" />
-    <app-expenses (onDeleteExpense)="deleteExpense($event)" *ngIf="expenseReducerOutput?.expenses?.length; else noData" [data]="expenseReducerOutput?.expenses" />
+    <app-expenses (onDeleteExpense)="deleteExpense($event)" [data]="expenseReducerOutput?.expenses" />
 
     <ng-template #noData>
         <p>No Data</p>
