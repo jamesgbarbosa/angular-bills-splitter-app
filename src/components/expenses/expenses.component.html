@@ -22,7 +22,9 @@
                     {{it.name}}
                 </td>
                 <td>
-                    {{it.transactionType}}
+                    <span *ngIf="it.transactionType == 'SETTLE'" class="badge bg-success"> Settle</span>
+                    <span *ngIf="it.transactionType == 'SPLIT_EQUALLY'" class="badge bg-danger"> Split Equally</span>
+                    <span *ngIf="it.transactionType == 'OWED_FULL_AMOUNT'" class="badge bg-warning text-dark"> Owed Full Amount</span>
                 </td>
                 <td>
                     $ {{it.amountPaid}}
