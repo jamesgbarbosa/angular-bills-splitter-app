@@ -29,8 +29,7 @@ const initializeIsOwedObject = (project: Project) => {
     })
 }
 
-const initializeDebtsObject = (project: Project, name = "Else") => {
-    console.log(name)
+const initializeDebtsObject = (project: Project) => {
     const calculateDebtsMap = (user: User) => {
         let totalDebt = project.expenses.reduce((total, expense: Expense) => {
             // per expense, if id owns the expense, skip; else check
@@ -123,7 +122,7 @@ export const updateUserIdToName = (project: Project) => {
                 }
             });
         }
-        return {...project, ...user, debtsMap, isOwedMap }
+        return {...user, debtsMap, isOwedMap }
     })
 }
 
