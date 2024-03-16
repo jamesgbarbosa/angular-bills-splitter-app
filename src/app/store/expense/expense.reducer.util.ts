@@ -123,7 +123,7 @@ export const updateUserIdToName = (project: Project) => {
                 }
             });
         }
-        return { ...user, debtsMap, isOwedMap }
+        return {...project, ...user, debtsMap, isOwedMap }
     })
 }
 

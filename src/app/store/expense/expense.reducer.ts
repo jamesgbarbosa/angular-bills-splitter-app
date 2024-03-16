@@ -3,18 +3,17 @@ import { deleteExpenseById, loadState, owedFullAmount, settlePayment, splitEqual
 import { Expense } from "../../../model/expenses.model";
 import { User } from "../../../model/user.model";
 import { initializeAmountBalancePerUser, initializeIsOwedAndDebtsMap, simplifyDebtBalance, updateUserIdToName } from "./expense.reducer.util";
+import { Project } from "../../../model/project.model";
 
-const expenseInitialState: { users: User[], expenses: Expense[] } = {
+const expenseInitialState: Project = {
     users: [
-        { id: "user1", name: 'James', amount: 0 },
-        { id: "user2", name: 'Jen', amount: 0 },
-        { id: "user3", name: 'Jackson', amount: 0 }
+        
     ],
     expenses: [
     ]
 }
 
-const expenseActionWrapper = (newState: { users: User[], expenses: Expense[] }, callback?: Function) => {
+const expenseActionWrapper = (newState: Project, callback?: Function) => {
     newState = callback ? callback() : newState;
     initializeAmountBalancePerUser(newState);
     initializeIsOwedAndDebtsMap(newState)
@@ -42,6 +41,7 @@ export const expenseReducer = createReducer(expenseInitialState,
                     }
                 }, {})
             return {
+                ...state,
                 users: state.users,
                 expenses: [{ ...action.payload, credit }, ...state.expenses]
             };
@@ -64,6 +64,7 @@ export const expenseReducer = createReducer(expenseInitialState,
                     }
                 }, {})
             return {
+                ...state,
                 users: state.users,
                 expenses: [{ ...action.payload, credit }, ...state.expenses]
             }
@@ -91,6 +92,7 @@ export const expenseReducer = createReducer(expenseInitialState,
             }
     
             return {
+                ...state,
                 users: state.users,
                 expenses: [expense, ...state.expenses]
             }
