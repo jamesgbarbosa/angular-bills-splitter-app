@@ -1,5 +1,5 @@
 <div class="buttons-container btn-toolbar">
-    <button type="button" class="btn btn-primary me-1">Create New Project</button>
+    <button type="button" class="btn btn-primary me-1" (click)="openCreateProjectDialog()">Create New Project</button>
 </div>
 
 <div id="projects">
@@ -10,7 +10,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr *ngFor="let it of projects">
+            <tr *ngFor="let it of projects" class="clickable" (click)="redirectToProject()">
                 <td>
                     {{it.name}}
                 </td>

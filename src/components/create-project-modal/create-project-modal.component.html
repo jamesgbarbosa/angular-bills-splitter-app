@@ -1,0 +1,34 @@
+<div class="modal-container">
+    <h3>Create Project</h3>
+    <form [formGroup]="form">
+        <div class="mb-3">
+            <label for="projectName" class="form-label">Project Name</label>
+            <input id="projectName" class="form-control" formControlName="projectName" type="text" />
+        </div>
+        <div class="mb-3">
+
+            <div class="flex-space-between">
+                <label for="projectName" class="form-label">Users</label>
+                <button class="btn btn-primary btn-sm" (click)="addUser()">Add User</button>
+            </div>
+
+            <ng-container formArrayName="users">
+                <ng-container *ngFor="let ug of users.controls; let i = index; let l = last;">
+                    <div [formGroupName]="i" class="">
+                        <div class="row mb-1">
+                            <div class="col-10">
+                                <input id="name" class="form-control" formControlName="name" type="text" />
+                            </div>
+                            <div class="col-2" style="line-height: 2rem;">
+                                <i *ngIf="users.length > 2" (click)="deleteUser(i)" class="bi bi-trash-fill clickable"></i>
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
+            </ng-container>
+
+        </div>
+        <button type="button" class="btn btn-light" (click)="close()">Close</button>
+        <button type="button" class="btn btn-primary" [disabled]="form.invalid" (click)="create()">Create</button>
+    </form>
+</div>
