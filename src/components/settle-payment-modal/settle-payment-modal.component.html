@@ -23,7 +23,6 @@
             <span class="text-danger" *ngIf="form.get('amountPaid').hasError('max')">
                 Total debt is only ${{form.get('amountPaid').errors?.max?.max}} 
             </span>
-            {{form.get('amountPaid').errors| json}}
             <span class="text-danger" *ngIf="form.get('amountPaid').dirty && form.get('amountPaid').hasError('min')">
                 Invalid input
             </span>

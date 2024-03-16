@@ -11,6 +11,7 @@ import { SettlePaymentModalComponent } from '../settle-payment-modal/settle-paym
 import { Project } from '../../model/project.model';
 import { Store } from '@ngrx/store';
 import { deleteExpenseById, loadState, owedFullAmount, settlePayment, splitEqually } from '../../app/store/expense/expense.action';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'project-detail',
@@ -20,7 +21,7 @@ import { deleteExpenseById, loadState, owedFullAmount, settlePayment, splitEqual
   styleUrl: './project-detail.component.scss'
 })
 export class ProjectDetailComponent implements OnInit {
-  @Input() data!: Project;
+  // @Input() data!: Project;
   isModal = true;
   userData: any = []
   // expense$: Observable<any>;
@@ -33,88 +34,9 @@ export class ProjectDetailComponent implements OnInit {
 
   dialog = inject(MatDialog)
   store = inject(Store<any>)
+  router = inject(Router)
 
   constructor() {}
-
-  loadState() {
-    const state = {
-      users: [
-        { id: "user1", name: 'James', amount: 0 },
-        { id: "user2", name: 'Jen', amount: 0 },
-        { id: "user3", name: 'Jackson', amount: 0 }
-      ],
-      expenses: [
-        {
-          "id": "428",
-          "paidBy": {
-            "id": "user3",
-            "name": "Jackson"
-          },
-          "dateCreated": "2024-03-15T13:30:26.428Z",
-          "amountPaid": 20.5,
-          "name": "Settle payment to user James(user1)",
-          "transactionType": "SETTLE",
-          "settlementTo": "user1",
-          "credit": {
-            "user1": -20.5,
-            "user2": 0,
-            "user3": 20.5
-          }
-        },
-        {
-          "id": "702",
-          "paidBy": {
-            "id": "user2",
-            "name": "Jen"
-          },
-          "dateCreated": "2024-03-15T13:30:16.702Z",
-          "amountPaid": 41,
-          "name": "Settle payment to user James(user1)",
-          "transactionType": "SETTLE",
-          "settlementTo": "user1",
-          "credit": {
-            "user1": -41,
-            "user2": 41,
-            "user3": 0
-          }
-        },
-        {
-          "id": "474",
-          "paidBy": {
-            "id": "user3",
-            "name": "Jackson"
-          },
-          "dateCreated": "2024-03-15T13:30:03.474Z",
-          "amountPaid": 41,
-          "name": "Foods and drinks",
-          "transactionType": "OWED_FULL_AMOUNT",
-          "credit": {
-            "user1": -20.5,
-            "user2": -20.5,
-            "user3": 41
-          }
-        },
-        {
-          "id": "790",
-          "paidBy": {
-            "id": "user1",
-            "name": "James"
-          },
-          "dateCreated": "2024-03-15T13:29:48.790Z",
-          "amountPaid": 123,
-          "name": "Foods and drinks",
-          "transactionType": "SPLIT_EQUALLY",
-          "credit": {
-            "user1": 82,
-            "user2": -41,
-            "user3": -41
-          }
-        }
-      ]
-    }
-
-    this.store.dispatch(loadState({ payload: state }));
-  }
 
   ngOnInit(): void {
     this.store.select("expense").subscribe((it: { users: User[], expenses: Expense[] }) => {
@@ -123,7 +45,7 @@ export class ProjectDetailComponent implements OnInit {
   }
 
   _initializeExpense(result: any) {
-    let paidBy = this.data.users.find(it => it.id == result.userId)
+    let paidBy = this.expenseReducerOutput.users.find((it: any) => it.id == result.userId)
     let expense: Expense = {
       // userId: paidBy.id,
       id: new Date().getMilliseconds() + "",
@@ -145,7 +67,7 @@ export class ProjectDetailComponent implements OnInit {
       case SETTLE: {
         let e = { ...expense }
         e.settlementTo = result.paymentTo
-        let paymentTo = this.data.users.find(it => it.id == result.paymentTo)
+        let paymentTo = this.expenseReducerOutput.users.find((it: any) => it.id == result.paymentTo)
         e.name = 'Settle payment to user ' + `${paymentTo?.name}(${paymentTo?.id})`
         this.store.dispatch(settlePayment({ payload: e }))
         break;
@@ -184,5 +106,9 @@ export class ProjectDetailComponent implements OnInit {
     if (confirm(`Are you sure you want to delete expense: ${id}?`) == true) {
       this.store.dispatch(deleteExpenseById({payload: id}))
     } 
+  }
+
+  goToHome() {
+    this.router.navigate(["/"])
   }
 }

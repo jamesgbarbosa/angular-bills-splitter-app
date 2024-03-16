@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { AbsPipe } from '../../pipes/abs.pipe';
+import { Project } from '../../model/project.model';
 
 @Component({
   selector: 'app-user-info',
@@ -10,7 +11,7 @@ import { AbsPipe } from '../../pipes/abs.pipe';
   styleUrl: './user-info.component.scss'
 })
 export class UserInfoComponent {
-  @Input() userData: any;
+  @Input() project: Project | undefined;
   @Output() onAddTransaction = new EventEmitter<any>();
   @Output() onSettlePayment = new EventEmitter<any>();
 

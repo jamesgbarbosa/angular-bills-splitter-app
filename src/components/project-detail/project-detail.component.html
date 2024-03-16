@@ -1,26 +1,17 @@
-<div class="project-detail-container">
-    <h2>Group: {{data?.projectName}}</h2>
-    <button (click)="loadState()">Load State</button>
-    <app-user-info [userData]="expenseReducerOutput.users" (onSettlePayment)="onSettlePaymentModal()"
+<div class="project-detail-container" *ngIf="expenseReducerOutput?.users?.length > 0">
+    <h2>Group: {{expenseReducerOutput?.projectName}}</h2>
+    <!-- <button (click)="loadState()">Load State</button> -->
+    <app-user-info [project]="expenseReducerOutput" (onSettlePayment)="onSettlePaymentModal()"
         (onAddTransaction)="onAddTransactionModal()" />
     <app-expenses (onDeleteExpense)="deleteExpense($event)" *ngIf="expenseReducerOutput?.expenses?.length; else noData" [data]="expenseReducerOutput?.expenses" />
-    <!-- <pre>
-    {{data?.expenses | json}}
-    </pre> -->
-
-    <div class="flex">
-        <!-- <pre>
-            {{userData | json}}
-            </pre> -->
-
-        <pre>
-                {{expenseReducerOutput | json}}
-            </pre>
-    </div>
-
 
     <ng-template #noData>
         <p>No Data</p>
     </ng-template>
 
+    <!-- <pre>
+        {{expenseReducerOutput | json}}
+    </pre> -->
 </div>
+
+<button (click)="goToHome()">Home</button>
