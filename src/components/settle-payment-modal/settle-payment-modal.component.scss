@@ -14,6 +14,11 @@ button {
     margin: 0.25rem;
 }
 
+.flex-end {
+    display: flex;
+    justify-content: flex-end;
+}
+
 @include media-breakpoint-down(sm) {
     .modal {
         &-container {

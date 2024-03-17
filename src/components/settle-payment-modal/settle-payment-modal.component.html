@@ -3,17 +3,18 @@
     <form [formGroup]="form">
         <div class="mb-3">
             <label for="userId" class="form-label">Who paid?</label>
-            <select (change)="onChangeUser($event)" class="form-control" formControlName="userId" >
+            <select (change)="onChangeUser($event)" class="form-control" formControlName="userId">
                 <option *ngFor="let u of usersWithDebts; let i = index" [value]="u.id">
-                     {{u.name}}
+                    {{u.name}}
                 </option>
             </select>
         </div>
         <div class="mb-3">
             <label for="settlementTo" class="form-label">Payment To</label>
-            <select (change)="onChangeSettlementTo($event)" class="form-control" formControlName="settlementTo" >
-                <option *ngFor="let u of form.get('settlementToList').value; let i = index" [value]="u.id" [selected]="u.id == form.get('settlementTo').value">
-                     {{u.name}}
+            <select (change)="onChangeSettlementTo($event)" class="form-control" formControlName="settlementTo">
+                <option *ngFor="let u of form.get('settlementToList').value; let i = index" [value]="u.id"
+                    [selected]="u.id == form.get('settlementTo').value">
+                    {{u.name}}
                 </option>
             </select>
         </div>
@@ -29,9 +30,11 @@
             </div>
             <span class="text-danger" *ngIf="form.get('amountPaid').dirty && form.get('amountPaid').hasError('min')">
                 Invalid input
-            </span> 
+            </span>
         </div>
-        <button class="btn btn-light" (click)="close()">Close</button>
-        <button class="btn btn-primary" [disabled]="form.invalid" (click)="settle()">Settle Payment</button>
+        <div class="flex-end">
+            <button class="btn btn-light" (click)="close()">Close</button>
+            <button class="btn btn-primary" [disabled]="form.invalid" (click)="settle()">Settle Payment</button>
+        </div>
     </form>
 </div>

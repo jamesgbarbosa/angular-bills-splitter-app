@@ -32,11 +32,10 @@ export class ExpenseModalComponent implements OnInit {
   }
 
   ngOnInit(): void {
-
   }
 
-  close() {
-    this.dialogRef.close();
+  close(bool = false) {
+    this.dialogRef.close(bool);
   }
 
   add() {

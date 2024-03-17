@@ -84,7 +84,7 @@ export class ProjectDetailComponent implements OnInit {
 
   onAddExpenseModal() {
     const dialogRef = this.dialog.open(ExpenseModalComponent, {
-      data: { users: this.expenseReducerOutput.users, transactionTypes: this.transactionTypes }
+      data: { users: this.expenseReducerOutput.users, transactionTypes: this.transactionTypes, mode: 'ADD' }
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -187,9 +187,15 @@ export class ProjectDetailComponent implements OnInit {
   }
 
   deleteExpense(id: string) {
-    if (confirm(`Are you sure you want to delete expense: ${id}?`) == true) {
-      this.store.dispatch(deleteExpenseById({ payload: id }))
-    }
+    const dialogRef = this.dialog.open(ExpenseModalComponent, {
+      data: { users: this.expenseReducerOutput.users, transactionTypes: this.transactionTypes, mode: 'DELETE' }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.store.dispatch(deleteExpenseById({ payload: id }))
+      }
+    });
   }
 
   goToHome() {
