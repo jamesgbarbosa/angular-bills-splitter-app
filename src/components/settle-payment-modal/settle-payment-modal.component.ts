@@ -13,21 +13,22 @@ import { User } from '../../model/user.model';
 })
 export class SettlePaymentModalComponent {
   form: FormGroup | any;
-  usersWithDebts: User[] = [];
   title = 'Settle Payment'
 
   constructor(public dialogRef: MatDialogRef<SettlePaymentModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any, private fb: FormBuilder) {
-    this.usersWithDebts = data.usersWithDebts;
     this.title = this.getTitleByMode(data.mode);
     let expense = data.expense;
-
     this.form = this.fb.group({
       userId: [expense?.paidBy?.id ?? '', Validators.required],
       settlementTo: [expense?.settlementTo ?? '', Validators.required],
       settlementToList: [expense?.paidBy?.id ? this._initSettlementToListBySelectedUserId(expense?.paidBy?.id) : []],
       amountPaid: [expense?.amountPaid ?? 0, [Validators.required, Validators.min(0.1)]]
     })
+  }
+
+  get usersWithDebts(): User[] {
+    return this.data.users.filter((it: any) => (it?.debts && Object.keys(it?.debts).length > 0));
   }
 
   onChangeUser(event: any) {

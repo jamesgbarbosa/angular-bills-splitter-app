@@ -71,11 +71,11 @@ export class ProjectDetailComponent implements OnInit {
         break;
       }
       case SETTLE: {
-        let e = { ...expense }
-        e.settlementTo = result.settlementTo
-        let settlementTo = this.expenseReducerOutput.users.find((it: any) => it.id == result.settlementTo)
-        e.name = 'Settle payment to user ' + `${settlementTo?.name}(${settlementTo?.id})`
-        this.store.dispatch(settlePayment({ payload: e }))
+        let newExpense = { ...expense }
+        const settlementTo = this.expenseReducerOutput.users.find((it: any) => it.id == result.settlementTo)
+        newExpense.settlementTo = result.settlementTo
+        newExpense.name = this.getSettlementExpenseName(settlementTo);
+        this.store.dispatch(settlePayment({ payload: newExpense }))
         break;
       }
     }
@@ -94,7 +94,7 @@ export class ProjectDetailComponent implements OnInit {
     });
   }
 
-  editExpense(id: string) {
+  onEditExpenseButtonClick(id: string) {
     const expense = this.expenseReducerOutput.expenses.find((it: any) => it.id == id)
     switch (expense.transactionType) {
       case 'SPLIT_EQUALLY': {
@@ -121,7 +121,7 @@ export class ProjectDetailComponent implements OnInit {
         if (result) {
           let paidBy = this.expenseReducerOutput.users.find((it: any) => it.id == result.userId)
           let newExpense: Expense = {
-            id: expense.id,
+            ...expense,
             paidBy: paidBy,
             dateUpdated: new Date(),
             amountPaid: +result.amountPaid,
@@ -144,20 +144,22 @@ export class ProjectDetailComponent implements OnInit {
       projectTemp = { ...projectTemp, expenses: projectTemp.expenses.filter((e: Expense) => e.id != expense.id)}
       processProject(projectTemp);
 
-      let usersWithDebts = projectTemp.users.filter((it: any) => (it?.debts && Object.keys(it?.debts).length > 0))
       const dialogRef = this.dialog.open(SettlePaymentModalComponent, {
-        data: { users: projectTemp.users, usersWithDebts: usersWithDebts, expense }
+        data: { users: projectTemp.users, expense }
       });
+
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
           let paidBy = this.expenseReducerOutput.users.find((it: any) => it.id == result.userId)
+          let settlementTo = this.expenseReducerOutput.users.find((it: any) => it.id == result.settlementTo)
           let newExpense: Expense = {
             id: expense.id,
             paidBy: paidBy,
             dateUpdated: new Date(),
             settlementTo: result.settlementTo,
             amountPaid: +result.amountPaid,
-            transactionType: expense.transactionType
+            transactionType: expense.transactionType,
+            name: this.getSettlementExpenseName(settlementTo)
           }
           this.store.dispatch(updateExpense({ payload: newExpense }))
         }
@@ -167,10 +169,13 @@ export class ProjectDetailComponent implements OnInit {
     }
   }
 
+  getSettlementExpenseName(user: User) {
+    return 'Settle payment to user ' + `${user?.name}`
+  }
+
   onSettlePaymentModal() {
-    let usersWithDebts = this.expenseReducerOutput.users.filter((it: any) => (it?.debts && Object.keys(it?.debts).length > 0))
     const dialogRef = this.dialog.open(SettlePaymentModalComponent, {
-      data: { users: this.expenseReducerOutput.users, usersWithDebts: usersWithDebts, transactionTypes: this.transactionTypes }
+      data: { users: this.expenseReducerOutput.users, transactionTypes: this.transactionTypes }
     });
 
     dialogRef.afterClosed().subscribe(result => {
