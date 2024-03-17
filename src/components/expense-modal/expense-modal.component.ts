@@ -9,14 +9,14 @@ import {
   selector: 'app-add-transaction-modal',
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule],
-  templateUrl: './add-transaction-modal.component.html',
-  styleUrl: './add-transaction-modal.component.scss'
+  templateUrl: './expense-modal.component.html',
+  styleUrl: './expense-modal.component.scss'
 })
-export class AddTransactionModalComponent implements OnInit {
+export class ExpenseModalComponent implements OnInit {
   form: FormGroup | any;
   transactionTypes: any;
 
-  constructor(public dialogRef: MatDialogRef<AddTransactionModalComponent>,
+  constructor(public dialogRef: MatDialogRef<ExpenseModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any, private fb: FormBuilder) {
     let user1 = data.users.length > 0 ? data.users[0].id : null;
     this.transactionTypes = data.transactionTypes;

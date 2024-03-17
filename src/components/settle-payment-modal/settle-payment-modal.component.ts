@@ -1,7 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { AddTransactionModalComponent } from '../add-transaction-modal/add-transaction-modal.component';
 import { CommonModule } from '@angular/common';
 import { User } from '../../model/user.model';
 
@@ -16,7 +15,7 @@ export class SettlePaymentModalComponent {
   form: FormGroup | any;
   usersWithDebts: User[] = [];
 
-  constructor(public dialogRef: MatDialogRef<AddTransactionModalComponent>,
+  constructor(public dialogRef: MatDialogRef<SettlePaymentModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any, private fb: FormBuilder) {
     this.usersWithDebts = data.usersWithDebts;
     this.form = this.fb.group({

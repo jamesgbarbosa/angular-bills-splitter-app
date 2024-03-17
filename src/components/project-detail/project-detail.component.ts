@@ -5,13 +5,14 @@ import { UserInfoComponent } from '../user-info/user-info.component';
 import { User } from '../../model/user.model';
 import { Expense } from '../../model/expenses.model';
 import { MatDialog } from '@angular/material/dialog';
-import { AddTransactionModalComponent } from '../add-transaction-modal/add-transaction-modal.component';
+import { ExpenseModalComponent } from '../expense-modal/expense-modal.component';
 import { OWED_FULL_AMOUNT, SETTLE, SPLIT_EQUALLY } from '../../constants/transaction-types.constant';
 import { SettlePaymentModalComponent } from '../settle-payment-modal/settle-payment-modal.component';
 import { Project } from '../../model/project.model';
 import { Store } from '@ngrx/store';
 import { deleteExpenseById, loadState, owedFullAmount, settlePayment, splitEqually } from '../../app/store/expense/expense.action';
 import { Router } from '@angular/router';
+import sample from './sample.json'
 
 @Component({
   selector: 'project-detail',
@@ -42,6 +43,7 @@ export class ProjectDetailComponent implements OnInit {
     this.store.select("expense").subscribe((it: { users: User[], expenses: Expense[] }) => {
       this.expenseReducerOutput = it;
     })
+    this.store.dispatch(loadState({payload: sample}))
   }
 
   _initializeExpense(result: any) {
@@ -77,7 +79,7 @@ export class ProjectDetailComponent implements OnInit {
 
 
   onAddTransactionModal() {
-    const dialogRef = this.dialog.open(AddTransactionModalComponent, {
+    const dialogRef = this.dialog.open(ExpenseModalComponent, {
       data: { users: this.expenseReducerOutput.users, transactionTypes: this.transactionTypes }
     });
 
