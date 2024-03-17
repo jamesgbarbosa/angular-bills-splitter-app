@@ -1,5 +1,5 @@
 <div id="expenses">
-    <table class="table">
+    <table class="table table-striped table-bordered">
         <thead>
             <tr>
                 <th scope="col">ID</th>
@@ -30,7 +30,8 @@
                     $ {{it.amountPaid}}
                 </td>
                 <td>
-                    <button class="btn btn-danger" (click)="deleteExpense(it.id)">Delete</button>
+                    <span class="mx-1"><i (click)="deleteExpense(it.id)" class="bi bi-trash-fill clickable"></i></span>
+                    <span class="mx-1"><i (click)="editExpense(it.id)" class="bi bi-pencil-square clickable"></i></span>
                 </td>
             </tr>
             <tr *ngIf="data?.length == 0">

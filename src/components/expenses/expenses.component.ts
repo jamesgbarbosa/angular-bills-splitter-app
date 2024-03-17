@@ -13,8 +13,13 @@ export class ExpensesComponent {
   
   @Input() data: Expense[] | any;
   @Output() onDeleteExpense = new EventEmitter<string>();
+  @Output() onEditExpense = new EventEmitter<string>();
 
   deleteExpense(id: string) {
     this.onDeleteExpense.emit(id);
+  }
+
+  editExpense(id: string) {
+    this.onEditExpense.emit(id);
   }
 }
