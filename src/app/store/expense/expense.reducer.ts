@@ -1,7 +1,7 @@
 import { createReducer, on } from "@ngrx/store";
 import { deleteExpenseById, loadState, owedFullAmount, settlePayment, splitEqually, updateExpense } from "./expense.action";
 import { Expense } from "../../../model/expenses.model";
-import { getCreditObject, initializeAmountBalancePerUser, initializeIsOwedAndDebtsMap, processProject, simplifyDebtBalance, updateUserIdToName } from "./expense.reducer.util";
+import { getCreditObject, processProject } from "./expense.reducer.util";
 import { Project } from "../../../model/project.model";
 
 const expenseInitialState: Project = {
@@ -68,16 +68,19 @@ export const expenseReducer = createReducer(expenseInitialState,
 
     on(updateExpense, (state, action) => {
         return expenseActionWrapper(state, () => {
-            let updateExpense = action.payload;
-            updateExpense = { ...updateExpense, credit: getCreditObject(state.users, updateExpense) }
-            const prevExpense = state.expenses.find((expense: Expense) => expense.id == updateExpense.id)
-            let indexToUpdate = state.expenses.findIndex((expense: Expense) => expense.id === updateExpense.id);
-            updateExpense = { ...prevExpense, ...updateExpense }
-            let expenses = [...state.expenses];
-            expenses[indexToUpdate] = updateExpense;
-
-            return { ...state, expenses: expenses }
+            return updateExpenseByExpenseObject(action.payload, state)
         })
     })
 )
+
+const updateExpenseByExpenseObject= (updateExpensed: Expense, project: Project) => {
+    updateExpensed = { ...updateExpensed, credit: getCreditObject(project.users, updateExpensed) }
+    const prevExpense = project.expenses.find((expense: Expense) => expense.id == updateExpensed.id)
+    let indexToUpdate = project.expenses.findIndex((expense: Expense) => expense.id === updateExpensed.id);
+    updateExpensed = { ...prevExpense, ...updateExpensed }
+    let expenses = [...project.expenses];
+    expenses[indexToUpdate] = updateExpensed;
+
+    return { ...project, expenses: expenses }
+}
 
