@@ -19,12 +19,19 @@ export class SettlePaymentModalComponent {
     @Inject(MAT_DIALOG_DATA) public data: any, private fb: FormBuilder) {
     this.title = this.getTitleByMode(data.mode);
     let expense = data.expense;
+    expense = {...expense, settlementName:  expense?.settlementTo ? this._findUserBy(expense?.settlementTo)?.name : ''}
     this.form = this.fb.group({
       userId: [expense?.paidBy?.id ?? '', Validators.required],
+      userName: [expense?.paidBy?.name ?? ''],
       settlementTo: [expense?.settlementTo ?? '', Validators.required],
+      settlementToName: [expense?.settlementName ?? ''],
       settlementToList: [expense?.paidBy?.id ? this._initSettlementToListBySelectedUserId(expense?.paidBy?.id) : []],
-      amountPaid: [expense?.amountPaid ?? 0, [Validators.required, Validators.min(0.1)]]
+      amountPaid: [expense?.amountPaid ?? 0, [Validators.required, Validators.min(0.1)]],
+      debt: []
     })
+    if (expense?.settlementTo) {
+      this.updateAmountPaidValidation(expense?.settlementTo)
+    }
   }
 
   get usersWithDebts(): User[] {
@@ -32,6 +39,8 @@ export class SettlePaymentModalComponent {
   }
 
   onChangeUser(event: any) {
+    let user = this._findUserBy(event.target.value);
+    this.form.get('userName').setValue(user.name)
     this.form.get('settlementToList').setValue(this._initSettlementToListBySelectedUserId(event.target.value))
   }
 
@@ -39,7 +48,7 @@ export class SettlePaymentModalComponent {
     let debts = this.usersWithDebts.find(it => it.id == id)?.debts;
     if (debts) {
       let settlementToMap = Object.entries(debts).map(([key, value]) => {
-        let user = this.data.users.find((it:any) => (it.id == key))
+        let user = this._findUserBy(key);
         return {id: key, name: user.name, debt: Math.abs(value as number)}
       })
       return settlementToMap
@@ -47,11 +56,27 @@ export class SettlePaymentModalComponent {
     return [];
   }
 
+  _findUserBy(id: any) {
+    return this.data.users.find((it:any) => (it.id == id))
+  }
+
   onChangeSettlementTo(event: any) {
-    let maxDebt = Math.abs((this.form.get('settlementToList').value).find((it: any) => it.id == event.target.value).debt)
+    let user = this._findUserBy(event.target.value);
+    this.form.get('settlementToName').setValue(user.name)
+    this.updateAmountPaidValidation(event.target.value)
+  }
+
+  updateAmountPaidValidation(userId: any) {
+    let maxDebt = Math.abs((this.form.get('settlementToList').value).find((it: any) => it.id == userId).debt)
+    this.form.get('debt').setValue(maxDebt);
     this.form.get('amountPaid').setValidators([Validators.required, Validators.min(0.1), Validators.max(maxDebt)])
     this.form.get('amountPaid').updateValueAndValidity();
     this.form.get('amountPaid').setValue(maxDebt)
+  }
+
+  get debtInfoMessage() {
+    const settlementToName = this.form.get('settlementToName').value;
+    return settlementToName ? `(${this.form.get('userName').value} owes ${settlementToName} $${this.form.get('debt').value})` : '';
   }
 
   ngOnInit(): void {
