@@ -3,19 +3,23 @@
     <div class="flex">
         <div class="info-item" *ngFor="let user of project?.users">
             <div>
-                <h3>{{user.name}}
+                <h5>{{user.name}}
                     <span *ngIf="user.amount != 0; else allSettled" [ngClass]="user.amount > 0 ? 'text-success':'text-danger'">
                         {{user.amount > 0 ? "is owed $" + (user.amount | abs) : "owes $" + (user.amount | abs )}}
                     </span>
-                </h3>
+                </h5>
 
-                <div *ngFor="let item of user.debtsMap | keyvalue">
-                    You owe <b>${{(item.value | abs | number : '1.2-2')}}</b> to <b class="text-danger">{{item.key}}</b>
+                <div class="ms-2" *ngFor="let item of user.debtsMap | keyvalue">
+                    <label>
+                        You owe <b>${{(item.value | abs | number : '1.2-2')}}</b> to <b class="text-danger">{{item.key}}</b>
+                    </label>
                 </div>
 
 
-                <div *ngFor="let item of user.isOwedMap | keyvalue">
-                    <b class="text-success">{{item.key}}</b> owes you <b>${{item.value | abs | number : '1.2-2'}}</b>
+                <div class="ms-2" *ngFor="let item of user.isOwedMap | keyvalue">
+                    <label>
+                        <b class="text-success">{{item.key}}</b> owes you <b>${{item.value | abs | number : '1.2-2'}}</b>
+                    </label>
                 </div>
             </div>
         </div>
