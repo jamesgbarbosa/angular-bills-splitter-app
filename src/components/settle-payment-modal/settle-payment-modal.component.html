@@ -10,9 +10,9 @@
             </select>
         </div>
         <div class="mb-3">
-            <label for="paymentTo" class="form-label">Payment To</label>
-            <select (change)="onChangePaymentTo($event)" class="form-control" formControlName="paymentTo" >
-                <option *ngFor="let u of form.get('paymentToList').value; let i = index" [value]="u.id">
+            <label for="settlementTo" class="form-label">Payment To</label>
+            <select (change)="onChangeSettlementTo($event)" class="form-control" formControlName="settlementTo" >
+                <option *ngFor="let u of form.get('settlementToList').value; let i = index" [value]="u.id" [selected]="u.id == form.get('settlementTo').value">
                      {{u.name}}
                 </option>
             </select>

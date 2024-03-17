@@ -15,6 +15,7 @@ import { Router } from '@angular/router';
 import sample from './sample.json'
 import { Observable } from 'rxjs';
 import { selectExpense } from '../../app/store/expense/expense.selector';
+import { processProject } from '../../app/store/expense/expense.reducer.util';
 
 @Component({
   selector: 'project-detail',
@@ -48,7 +49,7 @@ export class ProjectDetailComponent implements OnInit {
     this.store.dispatch(loadState({ payload: sample }))
   }
 
-  _initializeExpense(result: any) {
+  _initializeExpense(result: Expense) {
     let paidBy = this.expenseReducerOutput.users.find((it: any) => it.id == result.userId)
     let expense: Expense = {
       // userId: paidBy.id,
@@ -71,9 +72,9 @@ export class ProjectDetailComponent implements OnInit {
       }
       case SETTLE: {
         let e = { ...expense }
-        e.settlementTo = result.paymentTo
-        let paymentTo = this.expenseReducerOutput.users.find((it: any) => it.id == result.paymentTo)
-        e.name = 'Settle payment to user ' + `${paymentTo?.name}(${paymentTo?.id})`
+        e.settlementTo = result.settlementTo
+        let settlementTo = this.expenseReducerOutput.users.find((it: any) => it.id == result.settlementTo)
+        e.name = 'Settle payment to user ' + `${settlementTo?.name}(${settlementTo?.id})`
         this.store.dispatch(settlePayment({ payload: e }))
         break;
       }
@@ -94,30 +95,76 @@ export class ProjectDetailComponent implements OnInit {
   }
 
   editExpense(id: string) {
-      const expense = this.expenseReducerOutput.expenses.find((it: any) => it.id == id)
-      if (expense) {
-        const dialogRef = this.dialog.open(ExpenseModalComponent, {
-          data: { users: this.expenseReducerOutput.users, transactionTypes: this.transactionTypes, mode: 'EDIT', expense:expense  }
-        });
-        dialogRef.afterClosed().subscribe(result => {
-          if (result) {
-            let paidBy = this.expenseReducerOutput.users.find((it: any) => it.id == result.userId)
-            let expense: Expense = {
-              id: id,
-              paidBy: paidBy,
-              dateUpdated: new Date(),
-              amountPaid: result.amountPaid,
-              name: result.name,
-              transactionType: result.transactionType
-            }
-            this.store.dispatch(updateExpense({payload: expense }))
-          }
-        });
-      } else {
-        console.error("User not found!")
+    const expense = this.expenseReducerOutput.expenses.find((it: any) => it.id == id)
+    switch (expense.transactionType) {
+      case 'SPLIT_EQUALLY': {
+        this._openEditExpenseModal(expense);
+        break;
       }
-      
+      case 'OWED_FULL_AMOUNT': {
+        this._openEditExpenseModal(expense);
+        break;
+      }
+      case 'SETTLE': {
+        this._openEditSettleModal(expense);
+        break;
+      }
+    }
+  }
 
+  _openEditExpenseModal(expense: Expense) {
+    if (expense) {
+      const dialogRef = this.dialog.open(ExpenseModalComponent, {
+        data: { users: this.expenseReducerOutput.users, transactionTypes: this.transactionTypes, mode: 'EDIT', expense }
+      });
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          let paidBy = this.expenseReducerOutput.users.find((it: any) => it.id == result.userId)
+          let newExpense: Expense = {
+            id: expense.id,
+            paidBy: paidBy,
+            dateUpdated: new Date(),
+            amountPaid: +result.amountPaid,
+            name: result.name,
+            transactionType: result.transactionType
+          }
+          this.store.dispatch(updateExpense({ payload: newExpense }))
+        }
+      });
+    } else {
+      console.error("User not found!")
+    }
+  }
+
+  _openEditSettleModal(expense: Expense) {
+    if (expense) {
+      // delete expense from this.expenseReducerOutput
+      // to intiialize values to settlement modal 
+      let projectTemp = {...this.expenseReducerOutput}
+      projectTemp = { ...projectTemp, expenses: projectTemp.expenses.filter((e: Expense) => e.id != expense.id)}
+      processProject(projectTemp);
+
+      let usersWithDebts = projectTemp.users.filter((it: any) => (it?.debts && Object.keys(it?.debts).length > 0))
+      const dialogRef = this.dialog.open(SettlePaymentModalComponent, {
+        data: { users: projectTemp.users, usersWithDebts: usersWithDebts, expense }
+      });
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          let paidBy = this.expenseReducerOutput.users.find((it: any) => it.id == result.userId)
+          let newExpense: Expense = {
+            id: expense.id,
+            paidBy: paidBy,
+            dateUpdated: new Date(),
+            settlementTo: result.settlementTo,
+            amountPaid: +result.amountPaid,
+            transactionType: expense.transactionType
+          }
+          this.store.dispatch(updateExpense({ payload: newExpense }))
+        }
+      });
+    } else {
+      console.error("User not found!")
+    }
   }
 
   onSettlePaymentModal() {

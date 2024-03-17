@@ -1,7 +1,7 @@
 import { createReducer, on } from "@ngrx/store";
 import { deleteExpenseById, loadState, owedFullAmount, settlePayment, splitEqually, updateExpense } from "./expense.action";
 import { Expense } from "../../../model/expenses.model";
-import { getCreditObject, initializeAmountBalancePerUser, initializeIsOwedAndDebtsMap, simplifyDebtBalance, updateUserIdToName } from "./expense.reducer.util";
+import { getCreditObject, initializeAmountBalancePerUser, initializeIsOwedAndDebtsMap, processProject, simplifyDebtBalance, updateUserIdToName } from "./expense.reducer.util";
 import { Project } from "../../../model/project.model";
 
 const expenseInitialState: Project = {
@@ -14,10 +14,7 @@ const expenseInitialState: Project = {
 
 const expenseActionWrapper = (newState: Project, callback?: Function) => {
     newState = callback ? callback() : newState;
-    initializeAmountBalancePerUser(newState);
-    initializeIsOwedAndDebtsMap(newState)
-    simplifyDebtBalance(newState)
-    updateUserIdToName(newState);
+    processProject(newState);
     return newState;
 }
 
@@ -50,23 +47,10 @@ export const expenseReducer = createReducer(expenseInitialState,
     on(settlePayment, (state, action) => {
         return expenseActionWrapper(state, () => {
             let expense = action.payload;
-            if (expense && expense.paidBy && expense.paidBy.id && expense.settlementTo) {
-                const credit = {
-                    [expense.paidBy.id]: expense.amountPaid,
-                    [expense.settlementTo]: -Math.abs(expense.amountPaid),
-                }
-                const newCredit = state.users.map(it => it.id).reduce((object, userId) => {
-                    return {
-                        ...object,
-                        [userId]: credit[userId] ? credit[userId] : 0
-                    }
-                }, {})
-                expense = {
-                    ...expense,
-                    credit: newCredit
-                }
+            expense = {
+                ...expense,
+                credit: getCreditObject(state.users, expense)
             }
-
             return {
                 ...state,
                 users: state.users,
@@ -96,3 +80,4 @@ export const expenseReducer = createReducer(expenseInitialState,
         })
     })
 )
+

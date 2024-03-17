@@ -162,7 +162,29 @@ describe('expense reducer', () => {
                 expect(credit.user2).toBe(-3)
                 expect(credit.user3).toBe(-3)
             })
+
+            it('should compute credit for type SETTLE', () => {
+                let settleExpense = {
+                    "id": "239",
+                    "paidBy": {
+                        "id": "user2",
+                        "name": "Jen",
+                        "amount": -2
+                    },
+                    "dateCreated": "2024-03-17T05:46:32.239Z",
+                    "dateUpdated": "2024-03-17T05:46:32.239Z",
+                    "amountPaid": 2,
+                    "name": "Settle payment to user James(user1)",
+                    "transactionType": "SETTLE",
+                    "settlementTo": "user1"
+                }
+                expense.expenses.push(settleExpense);
+                const credit: any = getCreditObject(expense.users, expense.expenses[1]);
+                expect(credit.user1).toBe(-2)
+                expect(credit.user2).toBe(2)
+                expect(credit.user3).toBe(0)
+            })
         })
-        
+
     })
 })

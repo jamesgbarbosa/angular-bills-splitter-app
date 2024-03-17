@@ -2,10 +2,18 @@ import { Expense } from "../../../model/expenses.model";
 import { Project } from "../../../model/project.model";
 import { User } from "../../../model/user.model";
 
+export const processProject = (project: Project) => {
+    initializeAmountBalancePerUser(project);
+    initializeIsOwedAndDebtsMap(project)
+    simplifyDebtBalance(project)
+    updateUserIdToName(project);
+}
+
 export const initializeIsOwedAndDebtsMap = (project: Project) => {
     initializeDebtsObject(project)
     initializeIsOwedObject(project)
 }
+
 const initializeIsOwedObject = (project: Project) => {
     const calculateOwedMap = (owedUser: User) => {
         let totalOwed = project.users.reduce((total, user: User) => {
@@ -134,6 +142,9 @@ export const getCreditObject = (users: User[], expense: Expense) => {
         case 'OWED_FULL_AMOUNT': {
             return computeOwedFillAmountCredit(users, expense)
         }
+        case 'SETTLE': {
+            return computeSettlementCredit(users, expense)
+        }
         default: {
             return null;
         }
@@ -169,6 +180,22 @@ const computeSplitEquallyCredit = (users: User[], expense: Expense) => {
             }
         }, {})
     return credit;
+}
+
+const computeSettlementCredit = (users: User[], expense: Expense) => {
+    if (expense && expense.paidBy && expense.paidBy.id && expense.settlementTo) {
+        const credit = {
+            [expense.paidBy.id]: expense.amountPaid,
+            [expense.settlementTo]: -Math.abs(expense.amountPaid),
+        }
+        return users.map(it => it.id).reduce((object, userId) => {
+            return {
+                ...object,
+                [userId]: credit[userId] ? credit[userId] : 0
+            }
+        }, {})
+    }
+    return null;
 }
 
 const _intersect = (o1: any, o2: any) => {
