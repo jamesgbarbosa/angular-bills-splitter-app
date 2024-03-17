@@ -26,3 +26,8 @@ export const deleteExpenseById = createAction(
     '[Expense] Delete Expense',
     props<{payload: string}>()
 )
+
+export const updateExpense = createAction(
+    '[Expense] Update Expense',
+    props<{payload: Expense}>()
+)

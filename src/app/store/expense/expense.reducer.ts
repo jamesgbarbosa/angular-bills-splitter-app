@@ -1,13 +1,12 @@
 import { createReducer, on } from "@ngrx/store";
-import { deleteExpenseById, loadState, owedFullAmount, settlePayment, splitEqually } from "./expense.action";
+import { deleteExpenseById, loadState, owedFullAmount, settlePayment, splitEqually, updateExpense } from "./expense.action";
 import { Expense } from "../../../model/expenses.model";
-import { User } from "../../../model/user.model";
-import { initializeAmountBalancePerUser, initializeIsOwedAndDebtsMap, simplifyDebtBalance, updateUserIdToName } from "./expense.reducer.util";
+import { getCreditObject, initializeAmountBalancePerUser, initializeIsOwedAndDebtsMap, simplifyDebtBalance, updateUserIdToName } from "./expense.reducer.util";
 import { Project } from "../../../model/project.model";
 
 const expenseInitialState: Project = {
     users: [
-        
+
     ],
     expenses: [
     ]
@@ -29,17 +28,7 @@ export const expenseReducer = createReducer(expenseInitialState,
 
     on(owedFullAmount, (state, action) => {
         return expenseActionWrapper(state, () => {
-            const expense = action.payload;
-            const otherUsersPart = +(+expense.amountPaid / (state.users.length - 1))  * -1;
-            const credit = state.users
-                .reduce((obj, it) => {
-                    let amount = expense.paidBy?.id == it.id ? 
-                        +expense.amountPaid : otherUsersPart;
-                    return {
-                        ...obj,
-                        [it.id]: +amount.toFixed(2)
-                    }
-                }, {})
+            const credit = getCreditObject(state.users, action.payload)
             return {
                 ...state,
                 users: state.users,
@@ -49,20 +38,7 @@ export const expenseReducer = createReducer(expenseInitialState,
     }),
     on(splitEqually, (state, action) => {
         return expenseActionWrapper(state, () => {
-            const expense = action.payload;
-            const numberOfUsers = state.users.length;
-
-            let payeePart = +((+expense.amountPaid * (numberOfUsers - 1)) / numberOfUsers)
-            let otherUsersPart = +(((+expense.amountPaid) / numberOfUsers) * -1)
-
-            const credit = state.users
-                .reduce((obj, it) => {
-                    let amount = expense.paidBy?.id == it.id ? payeePart : otherUsersPart;
-                    return {
-                        ...obj,
-                        [it.id]: +amount.toFixed(2)
-                    }
-                }, {})
+            const credit = getCreditObject(state.users, action.payload)
             return {
                 ...state,
                 users: state.users,
@@ -90,7 +66,7 @@ export const expenseReducer = createReducer(expenseInitialState,
                     credit: newCredit
                 }
             }
-    
+
             return {
                 ...state,
                 users: state.users,
@@ -103,6 +79,20 @@ export const expenseReducer = createReducer(expenseInitialState,
         return expenseActionWrapper(state, () => {
             const id = action.payload;
             return { ...state, expenses: state.expenses.filter(it => it.id != id) }
+        })
+    }),
+
+    on(updateExpense, (state, action) => {
+        return expenseActionWrapper(state, () => {
+            let updateExpense = action.payload;
+            updateExpense = { ...updateExpense, credit: getCreditObject(state.users, updateExpense) }
+            const prevExpense = state.expenses.find((expense: Expense) => expense.id == updateExpense.id)
+            let indexToUpdate = state.expenses.findIndex((expense: Expense) => expense.id === updateExpense.id);
+            updateExpense = { ...prevExpense, ...updateExpense }
+            let expenses = [...state.expenses];
+            expenses[indexToUpdate] = updateExpense;
+
+            return { ...state, expenses: expenses }
         })
     })
 )

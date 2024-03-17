@@ -53,7 +53,7 @@ const initializeDebtsObject = (project: Project) => {
 export const initializeAmountBalancePerUser = (project: Project) => {
     const calculateTotalAmount = (id: string) => {
         return project.expenses.reduce((total, expense) => {
-            return +(total + (expense.credit[id] ?? 0)).toFixed(2)
+            return +(total + (+expense?.credit[id] ?? 0)).toFixed(2)
         }, 0)
     }
 
@@ -124,6 +124,51 @@ export const updateUserIdToName = (project: Project) => {
         }
         return {...user, debtsMap, isOwedMap }
     })
+}
+
+export const getCreditObject = (users: User[], expense: Expense) => {
+    switch (expense.transactionType) {
+        case 'SPLIT_EQUALLY': {
+            return computeSplitEquallyCredit(users, expense)
+        }
+        case 'OWED_FULL_AMOUNT': {
+            return computeOwedFillAmountCredit(users, expense)
+        }
+        default: {
+            return null;
+        }
+    }
+}
+
+const computeOwedFillAmountCredit = (users: User[], expense: Expense) => {
+    const otherUsersPart = +(+expense.amountPaid / (users.length - 1)) * -1;
+    const credit = users
+        .reduce((obj, it) => {
+            let amount = expense.paidBy?.id == it.id ?
+                +expense.amountPaid : otherUsersPart;
+            return {
+                ...obj,
+                [it.id]: +amount.toFixed(2)
+            }
+        }, {})
+    return credit;
+}
+
+const computeSplitEquallyCredit = (users: User[], expense: Expense) => {
+    const numberOfUsers = users.length;
+
+    let payeePart = +((+expense.amountPaid * (numberOfUsers - 1)) / numberOfUsers)
+    let otherUsersPart = +(((+expense.amountPaid) / numberOfUsers) * -1)
+
+    const credit = users
+        .reduce((obj, it) => {
+            let amount = expense.paidBy?.id == it.id ? payeePart : otherUsersPart;
+            return {
+                ...obj,
+                [it.id]: +amount.toFixed(2)
+            }
+        }, {})
+    return credit;
 }
 
 const _intersect = (o1: any, o2: any) => {

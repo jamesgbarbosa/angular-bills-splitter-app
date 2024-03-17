@@ -4,19 +4,20 @@
     <app-user-info [project]="expenseReducerOutput" />
 
     <div class="button-container my-1">
-        <button class="btn btn-primary" type="button" (click)="onAddTransactionModal()">Add Expense</button>
+        <button class="btn btn-primary" type="button" (click)="onAddExpenseModal()">Add Expense</button>
         <button [disabled]="expenseReducerOutput?.expenses?.length == 0" class="btn btn-success" type="button" (click)="onSettlePaymentModal()">Settle</button>
     </div>
 
-    <app-expenses (onDeleteExpense)="deleteExpense($event)" [data]="expenseReducerOutput?.expenses" />
+    <app-expenses (onEditExpense)="editExpense($event)" (onDeleteExpense)="deleteExpense($event)" [data]="expenseReducerOutput?.expenses" />
 
     <ng-template #noData>
         <p>No Data</p>
     </ng-template>
 
-     <!-- <pre>
-        {{expenseReducerOutput | json}}
-    </pre>  -->
+    <pre>
+        {{expenseReducerOutput.expenses | json}}
+    </pre>
+
 </div>
 
 <button (click)="goToHome()">Home</button>

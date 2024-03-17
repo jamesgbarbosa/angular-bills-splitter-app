@@ -1,6 +1,6 @@
 import { Expense } from "../../../model/expenses.model";
 import { User } from "../../../model/user.model";
-import { initializeAmountBalancePerUser, initializeIsOwedAndDebtsMap, simplifyDebtBalance, updateUserIdToName } from "./expense.reducer.util";
+import { getCreditObject, initializeAmountBalancePerUser, initializeIsOwedAndDebtsMap, simplifyDebtBalance, updateUserIdToName } from "./expense.reducer.util";
 
 describe('expense reducer', () => {
     let expense: { users: User[], expenses: Expense[] };
@@ -28,7 +28,8 @@ describe('expense reducer', () => {
                     "id": "566",
                     "paidBy": {
                         "id": "user1",
-                        "name": "James"
+                        "name": "James",
+                        "amount": 0
                     },
                     "dateCreated": "2024-03-16T08:21:52.566Z",
                     "amountPaid": 6,
@@ -60,7 +61,8 @@ describe('expense reducer', () => {
                 "id": "111",
                 "paidBy": {
                     "id": "user1",
-                    "name": "James"
+                    "name": "James",
+                    "amount": 0
                 },
                 "dateCreated": "2024-03-16T08:21:52.566Z",
                 "amountPaid": 6,
@@ -96,7 +98,8 @@ describe('expense reducer', () => {
                 "id": "288",
                 "paidBy": {
                     "id": "user2",
-                    "name": "Jen"
+                    "name": "Jen",
+                    "amount": 0
                 },
                 "dateCreated": "2024-03-16T08:50:32.288Z",
                 "amountPaid": 6,
@@ -126,7 +129,7 @@ describe('expense reducer', () => {
         it('should update the debts and isOwed key mappings from user id to user name', () => {
             initializeIsOwedAndDebtsMap(expense);
             updateUserIdToName(expense);
-            
+
             expect(expense.users[0].isOwed).not.toBe(null)
             expect(expense.users[0].isOwedMap).not.toBe(null)
 
@@ -140,5 +143,26 @@ describe('expense reducer', () => {
             expect(userName3).toBe(isOwedMapKey2)
 
         })
+    })
+
+    describe('compute credit', () => {
+        describe('given there are 3 users, amount paid is 6', () => {
+            it('should compute credit for type SPLIT_EQUALLY', () => {
+                expense.expenses[0].transactionType = "SPLIT_EQUALLY"
+                const credit: any = getCreditObject(expense.users, expense.expenses[0]);
+                expect(credit.user1).toBe(4)
+                expect(credit.user2).toBe(-2)
+                expect(credit.user3).toBe(-2)
+            })
+
+            it('should compute credit for type OWED_FULL_AMOUNT', () => {
+                expense.expenses[0].transactionType = "OWED_FULL_AMOUNT"
+                const credit: any = getCreditObject(expense.users, expense.expenses[0]);
+                expect(credit.user1).toBe(6)
+                expect(credit.user2).toBe(-3)
+                expect(credit.user3).toBe(-3)
+            })
+        })
+        
     })
 })

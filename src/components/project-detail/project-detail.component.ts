@@ -10,9 +10,11 @@ import { OWED_FULL_AMOUNT, SETTLE, SPLIT_EQUALLY } from '../../constants/transac
 import { SettlePaymentModalComponent } from '../settle-payment-modal/settle-payment-modal.component';
 import { Project } from '../../model/project.model';
 import { Store } from '@ngrx/store';
-import { deleteExpenseById, loadState, owedFullAmount, settlePayment, splitEqually } from '../../app/store/expense/expense.action';
+import { deleteExpenseById, loadState, owedFullAmount, settlePayment, splitEqually, updateExpense } from '../../app/store/expense/expense.action';
 import { Router } from '@angular/router';
 import sample from './sample.json'
+import { Observable } from 'rxjs';
+import { selectExpense } from '../../app/store/expense/expense.selector';
 
 @Component({
   selector: 'project-detail',
@@ -37,13 +39,13 @@ export class ProjectDetailComponent implements OnInit {
   store = inject(Store<any>)
   router = inject(Router)
 
-  constructor() {}
+  constructor() { }
 
   ngOnInit(): void {
     this.store.select("expense").subscribe((it: { users: User[], expenses: Expense[] }) => {
       this.expenseReducerOutput = it;
     })
-    this.store.dispatch(loadState({payload: sample}))
+    this.store.dispatch(loadState({ payload: sample }))
   }
 
   _initializeExpense(result: any) {
@@ -53,6 +55,7 @@ export class ProjectDetailComponent implements OnInit {
       id: new Date().getMilliseconds() + "",
       paidBy: paidBy,
       dateCreated: new Date(),
+      dateUpdated: new Date(),
       amountPaid: result.amountPaid,
       name: result.name,
       transactionType: result.transactionType
@@ -78,7 +81,7 @@ export class ProjectDetailComponent implements OnInit {
   }
 
 
-  onAddTransactionModal() {
+  onAddExpenseModal() {
     const dialogRef = this.dialog.open(ExpenseModalComponent, {
       data: { users: this.expenseReducerOutput.users, transactionTypes: this.transactionTypes }
     });
@@ -88,6 +91,33 @@ export class ProjectDetailComponent implements OnInit {
         this._initializeExpense(result);
       }
     });
+  }
+
+  editExpense(id: string) {
+      const expense = this.expenseReducerOutput.expenses.find((it: any) => it.id == id)
+      if (expense) {
+        const dialogRef = this.dialog.open(ExpenseModalComponent, {
+          data: { users: this.expenseReducerOutput.users, transactionTypes: this.transactionTypes, mode: 'EDIT', expense:expense  }
+        });
+        dialogRef.afterClosed().subscribe(result => {
+          if (result) {
+            let paidBy = this.expenseReducerOutput.users.find((it: any) => it.id == result.userId)
+            let expense: Expense = {
+              id: id,
+              paidBy: paidBy,
+              dateUpdated: new Date(),
+              amountPaid: result.amountPaid,
+              name: result.name,
+              transactionType: result.transactionType
+            }
+            this.store.dispatch(updateExpense({payload: expense }))
+          }
+        });
+      } else {
+        console.error("User not found!")
+      }
+      
+
   }
 
   onSettlePaymentModal() {
@@ -106,8 +136,8 @@ export class ProjectDetailComponent implements OnInit {
 
   deleteExpense(id: string) {
     if (confirm(`Are you sure you want to delete expense: ${id}?`) == true) {
-      this.store.dispatch(deleteExpenseById({payload: id}))
-    } 
+      this.store.dispatch(deleteExpenseById({ payload: id }))
+    }
   }
 
   goToHome() {
