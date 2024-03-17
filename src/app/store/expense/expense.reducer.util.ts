@@ -3,10 +3,10 @@ import { Project } from "../../../model/project.model";
 import { User } from "../../../model/user.model";
 
 export const processProject = (project: Project) => {
-    initializeAmountBalancePerUser(project);
     initializeIsOwedAndDebtsMap(project)
     simplifyDebtBalance(project)
     updateUserIdToName(project);
+    initializeAmountBalancePerUser(project);
 }
 
 export const initializeIsOwedAndDebtsMap = (project: Project) => {
@@ -59,14 +59,17 @@ const initializeDebtsObject = (project: Project) => {
 }
 
 export const initializeAmountBalancePerUser = (project: Project) => {
-    const calculateTotalAmount = (id: string) => {
-        return project.expenses.reduce((total, expense) => {
-            return +(total + (+expense?.credit[id] ?? 0)).toFixed(2)
-        }, 0)
-    }
-
-    project.users = project.users.map((it: any) => {
-        return { ...it, amount: calculateTotalAmount(it.id) }
+    project.users = project.users.map((user: User) => {
+        const totalOwedAmount = user?.isOwed ? Object.entries(user.isOwed).reduce((total, [key, amount]) => {
+            return total + Math.abs(amount as number)
+        }, 0) : 0;
+        const totalDebtAmount = user?.debts ? Object.entries(user.debts).reduce((total, [key, amount]) => {
+            return total + Math.abs(amount as number)
+        }, 0) : 0;
+        return {
+            ...user,
+            amount: +(totalOwedAmount - totalDebtAmount).toFixed(2)
+        }
     })
 }
 

@@ -1,6 +1,6 @@
 import { Expense } from "../../../model/expenses.model";
 import { User } from "../../../model/user.model";
-import { getCreditObject, initializeAmountBalancePerUser, initializeIsOwedAndDebtsMap, simplifyDebtBalance, updateUserIdToName } from "./expense.reducer.util";
+import { getCreditObject, initializeAmountBalancePerUser, initializeIsOwedAndDebtsMap, processProject, simplifyDebtBalance, updateUserIdToName } from "./expense.reducer.util";
 
 describe('expense reducer', () => {
     let expense: { users: User[], expenses: Expense[] };
@@ -47,6 +47,9 @@ describe('expense reducer', () => {
 
     describe('initializeAmountBalancePerUser', () => {
         it('should be compute initialize the amount per user for 1 expense', () => {
+            initializeIsOwedAndDebtsMap(expense)
+            simplifyDebtBalance(expense)
+            updateUserIdToName(expense);
             initializeAmountBalancePerUser(expense);
             let user1Amount = 4;
             let user2Amount = -2;
@@ -75,6 +78,9 @@ describe('expense reducer', () => {
                 }
             }
             expense.expenses.push(expense2)
+            initializeIsOwedAndDebtsMap(expense)
+            simplifyDebtBalance(expense)
+            updateUserIdToName(expense);
             initializeAmountBalancePerUser(expense);
             expect(expense.users[0].amount).toBe(8)
             expect(expense.users[1].amount).toBe(-4)
