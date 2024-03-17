@@ -12,14 +12,4 @@ import { Project } from '../../model/project.model';
 })
 export class UserInfoComponent {
   @Input() project: Project | undefined;
-  @Output() onAddTransaction = new EventEmitter<any>();
-  @Output() onSettlePayment = new EventEmitter<any>();
-
-  addTransaction() {
-    this.onAddTransaction.emit();
-  }
-
-  settlePayment() {
-    this.onSettlePayment.emit();
-  }
 }

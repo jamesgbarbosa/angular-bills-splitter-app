@@ -1,3 +1,13 @@
 .flex {
     display: flex;
 }
+
+.button-container {
+    padding-top: 2rem;
+    display: flex;
+    justify-content: flex-end;
+}
+
+button {
+    margin: 0.25rem;
+}

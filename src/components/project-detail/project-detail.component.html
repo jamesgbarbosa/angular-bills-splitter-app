@@ -1,17 +1,22 @@
 <div class="project-detail-container" *ngIf="expenseReducerOutput?.users?.length > 0">
-    <h2>Group: {{expenseReducerOutput?.projectName}}</h2>
+    <h2>{{expenseReducerOutput?.projectName}}</h2>
     <!-- <button (click)="loadState()">Load State</button> -->
-    <app-user-info [project]="expenseReducerOutput" (onSettlePayment)="onSettlePaymentModal()"
-        (onAddTransaction)="onAddTransactionModal()" />
+    <app-user-info [project]="expenseReducerOutput" />
+
+    <div class="button-container my-1">
+        <button class="btn btn-primary" type="button" (click)="onAddTransactionModal()">Add Transaction</button>
+        <button [disabled]="expenseReducerOutput?.expenses?.length == 0" class="btn btn-success" type="button" (click)="onSettlePaymentModal()">Settle</button>
+    </div>
+
     <app-expenses (onDeleteExpense)="deleteExpense($event)" [data]="expenseReducerOutput?.expenses" />
 
     <ng-template #noData>
         <p>No Data</p>
     </ng-template>
 
-    <!-- <pre>
+     <!-- <pre>
         {{expenseReducerOutput | json}}
-    </pre> -->
+    </pre>  -->
 </div>
 
 <button (click)="goToHome()">Home</button>
