@@ -2,7 +2,7 @@
     <h3>Settle Payment</h3>
     <form [formGroup]="form">
         <div class="mb-3">
-            <label for="userId" class="form-label">User</label>
+            <label for="userId" class="form-label">Who paid?</label>
             <select (change)="onChangeUser($event)" class="form-control" formControlName="userId" >
                 <option *ngFor="let u of usersWithDebts; let i = index" [value]="u.id">
                      {{u.name}}
@@ -19,13 +19,16 @@
         </div>
         <div class="mb-3">
             <label for="amountPaid" class="form-label">Amount</label>
-            <input id="amountPaid" class="form-control" formControlName="amountPaid" type="number" />
-            <span class="text-danger" *ngIf="form.get('amountPaid').hasError('max')">
-                Total debt is only ${{form.get('amountPaid').errors?.max?.max}} 
-            </span>
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">$</span>
+                </div>
+                <input type="text" class="form-control" formControlName="amountPaid" type="number"
+                    aria-label="Amount (to the nearest dollar)">
+            </div>
             <span class="text-danger" *ngIf="form.get('amountPaid').dirty && form.get('amountPaid').hasError('min')">
                 Invalid input
-            </span>
+            </span> 
         </div>
         <button class="btn btn-light" (click)="close()">Close</button>
         <button class="btn btn-primary" [disabled]="form.invalid" (click)="settle()">Settle Payment</button>
