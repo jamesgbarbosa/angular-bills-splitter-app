@@ -145,7 +145,7 @@ export class ProjectDetailComponent implements OnInit {
       processProject(projectTemp);
 
       const dialogRef = this.dialog.open(SettlePaymentModalComponent, {
-        data: { users: projectTemp.users, expense }
+        data: { currentUsersState: {...this.expenseReducerOutput}.users, previousUsersState: projectTemp.users, expense, mode: 'EDIT' }
       });
 
       dialogRef.afterClosed().subscribe(result => {
@@ -169,13 +169,9 @@ export class ProjectDetailComponent implements OnInit {
     }
   }
 
-  getSettlementExpenseName(user: User) {
-    return 'Settle payment to user ' + `${user?.name}`
-  }
-
   onSettlePaymentModal() {
     const dialogRef = this.dialog.open(SettlePaymentModalComponent, {
-      data: { users: this.expenseReducerOutput.users, transactionTypes: this.transactionTypes }
+      data: { previousUsersState: this.expenseReducerOutput.users, currentUsersState: this.expenseReducerOutput.users, transactionTypes: this.transactionTypes, mode: 'ADD' }
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -184,6 +180,10 @@ export class ProjectDetailComponent implements OnInit {
         this._initializeExpense(result);
       }
     });
+  }
+
+  getSettlementExpenseName(user: User) {
+    return 'Settle payment to user ' + `${user?.name}`
   }
 
   deleteExpense(id: string) {

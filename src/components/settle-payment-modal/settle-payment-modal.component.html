@@ -3,24 +3,36 @@
     <form [formGroup]="form">
         <div class="mb-3">
             <label for="userId" class="form-label">Who paid?</label>
-            <select (change)="onChangeUser($event)" class="form-control" formControlName="userId">
-                <option *ngFor="let u of usersWithDebts; let i = index" [value]="u.id">
+            <div *ngIf="data.mode == 'EDIT'">
+                <b>{{form.get('userName').value}}</b>
+            </div>
+            <select *ngIf="data.mode == 'ADD'" (change)="onChangeWhoPaid($event)" class="form-control" formControlName="userId">
+                <option *ngFor="let u of currentUsersState; let i = index" [value]="u.id">
                     {{u.name}}
                 </option>
             </select>
         </div>
         <div class="mb-3">
             <label for="settlementTo" class="form-label">Payment To</label>
-            <select (change)="onChangeSettlementTo($event)" class="form-control" formControlName="settlementTo">
-                <option *ngFor="let u of form.get('settlementToList').value; let i = index" [value]="u.id"
-                    [selected]="u.id == form.get('settlementTo').value">
-                    {{u.name}}
-                </option>
-            </select>
+            <ng-container *ngIf="!form.get('userName')?.value; else settlementToTemplate">
+                <div>
+                    <em>Please select who is paying</em>
+                </div>
+            </ng-container>
+            <ng-template #settlementToTemplate>
+                <div *ngIf="data.mode == 'EDIT'">
+                    <b>{{form.get('settlementToName').value}}</b>
+                </div>
+                <select *ngIf="data.mode == 'ADD'" (change)="onChangeSettlementTo($event)" class="form-control" formControlName="settlementTo">
+                    <option *ngFor="let u of form.get('settlementToList').value; let i = index" [value]="u.id"
+                        [selected]="u.id == form.get('settlementTo').value">
+                        {{u.name}} {{u?.debtInfo}}
+                    </option>
+                </select>
+            </ng-template>
         </div>
         <div class="mb-3">
             <label for="amountPaid" class="form-label">Amount</label>
-            <em class="ms-1 form-label">{{debtInfoMessage}}</em>
             <div class="input-group mb-3">
                 <div class="input-group-prepend">
                     <span class="input-group-text">$</span>
@@ -28,9 +40,14 @@
                 <input type="text" class="form-control" formControlName="amountPaid" type="number"
                     aria-label="Amount (to the nearest dollar)">
             </div>
-            <span class="text-danger" *ngIf="form.get('amountPaid').dirty && form.get('amountPaid').hasError('min')">
+            <!-- <span class="text-danger" *ngIf="form.get('amountPaid').dirty && form.get('amountPaid').hasError('min')">
                 Invalid input
-            </span>
+            </span> -->
+            <div>
+                <p *ngFor="let msg of settlementInfoMessages">
+                    <em class="ms-1 form-label">{{msg}}</em>
+                </p>
+            </div>
         </div>
         <div class="flex-end">
             <button class="btn btn-light" (click)="close()">Close</button>
