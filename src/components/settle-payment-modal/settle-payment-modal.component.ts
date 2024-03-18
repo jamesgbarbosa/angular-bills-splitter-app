@@ -138,7 +138,7 @@ export class SettlePaymentModalComponent {
         } else if (debt > amountToPay) {
           messages.push(`${whoPaidUser.name} owes ${settlementToName} $${remainder}`)
         } else if (debt < amountToPay) {
-          messages.push(`Debt paid and ${whoPaidUser.name} now owes ${settlementToName} $${Math.abs(remainder)}`)
+          messages.push(`Debt paid and ${settlementToName} now owes ${whoPaidUser.name} $${Math.abs(remainder)}`)
         }
       } else if (owed >= 0) {
         this._isOwedMessages(messages)
