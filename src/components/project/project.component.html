@@ -6,13 +6,17 @@
     <table class="table">
         <thead>
             <tr>
+                <th scope="col">Project ID</th>
                 <th scope="col">Project Name</th>
             </tr>
         </thead>
         <tbody>
-            <tr *ngFor="let it of projects" class="clickable" (click)="redirectToProject()">
+            <tr *ngFor="let it of projects" class="clickable" (click)="redirectToProject(it?.id || '')">
                 <td>
-                    {{it.name}}
+                    {{it.projectId}}
+                </td>
+                <td>
+                    {{it.projectName}}
                 </td>
             </tr>
         </tbody>

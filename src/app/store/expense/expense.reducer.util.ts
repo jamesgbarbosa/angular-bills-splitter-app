@@ -82,8 +82,8 @@ export const simplifyDebtBalance = (project: Project) => {
                 let d = Math.abs(it.debts[common])
                 let o = Math.abs(it.isOwed[common])
                 let minNumber = Math.min(d, o)
-                it.debts[common] = +(d - minNumber).toFixed(2) ?? 0;
-                it.isOwed[common] = +(o - minNumber).toFixed(2) ?? 0;
+                it.debts[common] = +(d - minNumber).toFixed(2) || 0;
+                it.isOwed[common] = +(o - minNumber).toFixed(2) || 0;
             })
         }
     })

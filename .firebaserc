@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "splitbillapp-c8f1f": {
+      "hosting": {
+        "splitbillapp": [
+          "splitbillapp-c8f1f"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "splitbillapp-c8f1f"
+  }
+}

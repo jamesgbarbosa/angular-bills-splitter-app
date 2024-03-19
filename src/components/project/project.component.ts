@@ -6,26 +6,32 @@ import { Project } from '../../model/project.model';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { loadState } from '../../app/store/expense/expense.action';
+import { ProjectService } from './project.service';
+import { AngularFireModule } from "@angular/fire/compat";
+import { HttpClient } from '@angular/common/http';
+import { Firestore, collection, addDoc } from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-project',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, AngularFireModule],
   templateUrl: './project.component.html',
-  styleUrl: './project.component.scss'
+  styleUrl: './project.component.scss',
 })
 export class ProjectComponent {
-  projects = [{
-    name: "Project 1"
-  }]
+  projects: Project[] = []
 
-  router = inject(Router)
-  dialog = inject(MatDialog)
-  store = inject(Store<any>)
+  constructor(private projectService: ProjectService, private dialog: MatDialog, private store: Store<any>, private router: Router) {
+    this.projectService.getProjects().subscribe((result: any) => {
+      if (result) {
+        this.projects = result;
+      }
+    })
+  }
 
   openCreateProjectDialog() {
     const dialogRef = this.dialog.open(CreateProjectModalComponent, {})
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe(async (result) => {
       if (result) {
         let projectId = Date.now().toString(36);
         let project: Project;
@@ -33,16 +39,21 @@ export class ProjectComponent {
           projectId: projectId,
           projectName: result.projectName,
           dateCreated: new Date(),
-          users: result.users.map((it: any, index: number) => ({id: index+1, name: it.name, amount: 0})),
+          users: result.users.map((it: any, index: number) => ({ id: index + 1, name: it.name, amount: 0 })),
           expenses: []
         }
-        this.store.dispatch(loadState({payload: project}))
-        this.router.navigate(['project', projectId])
+        this.projectService.saveProject(project).then((result: any) => {
+          this.store.dispatch(loadState({ payload: project }))
+          this.router.navigate(['project', projectId])
+        }).catch((err: any) => {
+          console.log("Error", err)
+        })
       }
     })
   }
 
-  redirectToProject() {
-    this.router.navigate(["project","1"])
+  redirectToProject(id: string) {
+    this.router.navigate(["project", id])
   }
+
 }

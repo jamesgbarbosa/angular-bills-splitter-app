@@ -11,11 +11,12 @@ import { SettlePaymentModalComponent } from '../settle-payment-modal/settle-paym
 import { Project } from '../../model/project.model';
 import { Store } from '@ngrx/store';
 import { deleteExpenseById, loadState, owedFullAmount, settlePayment, splitEqually, updateExpense } from '../../app/store/expense/expense.action';
-import { Router } from '@angular/router';
-import sample from './sample.json'
+import { ActivatedRoute, Route, Router } from '@angular/router';
+// import sample from './sample.json'
 import { Observable } from 'rxjs';
 import { selectExpense } from '../../app/store/expense/expense.selector';
 import { processProject } from '../../app/store/expense/expense.reducer.util';
+import { ProjectService } from '../project/project.service';
 
 @Component({
   selector: 'project-detail',
@@ -39,14 +40,24 @@ export class ProjectDetailComponent implements OnInit {
   dialog = inject(MatDialog)
   store = inject(Store<any>)
   router = inject(Router)
+  route = inject(ActivatedRoute)
 
-  constructor() { }
+  constructor(private projectService: ProjectService) {
+
+  }
 
   ngOnInit(): void {
+    this.route.paramMap.subscribe((query: any) => {
+      let id = query.params.id;
+      this.projectService.getProjectById(id).then((project: any) => {
+        this.store.dispatch(loadState({ payload: project.data() }))
+      })
+    });
+      
     this.store.select("expense").subscribe((it: { users: User[], expenses: Expense[] }) => {
       this.expenseReducerOutput = it;
     })
-    this.store.dispatch(loadState({ payload: sample }))
+    // this.store.dispatch(loadState({ payload: sample }))
   }
 
   _initializeExpense(result: Expense) {
@@ -140,12 +151,12 @@ export class ProjectDetailComponent implements OnInit {
     if (expense) {
       // delete expense from this.expenseReducerOutput
       // to intiialize values to settlement modal 
-      let projectTemp = {...this.expenseReducerOutput}
-      projectTemp = { ...projectTemp, expenses: projectTemp.expenses.filter((e: Expense) => e.id != expense.id)}
+      let projectTemp = { ...this.expenseReducerOutput }
+      projectTemp = { ...projectTemp, expenses: projectTemp.expenses.filter((e: Expense) => e.id != expense.id) }
       processProject(projectTemp);
 
       const dialogRef = this.dialog.open(SettlePaymentModalComponent, {
-        data: { currentUsersState: {...this.expenseReducerOutput}.users, previousUsersState: projectTemp.users, expense, mode: 'EDIT' }
+        data: { currentUsersState: { ...this.expenseReducerOutput }.users, previousUsersState: projectTemp.users, expense, mode: 'EDIT' }
       });
 
       dialogRef.afterClosed().subscribe(result => {
