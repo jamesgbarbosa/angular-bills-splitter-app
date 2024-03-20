@@ -30,7 +30,7 @@ export class ProjectDetailComponent implements OnInit {
   store = inject(Store<any>)
   router = inject(Router)
   route = inject(ActivatedRoute)
-
+  isLoading = false;
   isModal = true;
   userData: any = []
   currentProjectState: any = { users: [], expenses: [] };
@@ -48,10 +48,7 @@ export class ProjectDetailComponent implements OnInit {
     this.route.paramMap.subscribe((query: any) => {
       let id = query.params.id;
       this.projectFireBaseId = id;
-      this.projectFirebaseService.getProjectById(id).then((project: any) => {
-        this.store.dispatch(loadState({ payload: project.data() }))
-        this.store.dispatch(pushChanges())
-      })
+      this.initializeProjectDetailData(id)
     });
 
     this.store.select(selectProject).subscribe((it: { users: User[], expenses: Expense[] }) => {
@@ -60,8 +57,17 @@ export class ProjectDetailComponent implements OnInit {
     this.store.select(previousProjectState).subscribe((it: { users: User[], expenses: Expense[] }) => {
       this.previousProjectState = it;
     })
-
     // this.store.dispatch(loadState({payload: sample}))
+  }
+
+  initializeProjectDetailData(id: string) {
+    this.isLoading = true;
+    this.projectFirebaseService.getProjectById(id).then((project: any) => {
+      this.store.dispatch(loadState({ payload: project.data() }))
+      this.store.dispatch(pushChanges())
+    }).finally(() => {
+      this.isLoading = false;
+    })
   }
 
   _initializeExpense(result: Expense) {
