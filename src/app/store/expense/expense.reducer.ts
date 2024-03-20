@@ -47,6 +47,7 @@ export const expenseReducer = createReducer(expenseInitialState,
     on(owedFullAmount, (state, action) => {
         const credit = computeOwedFillAmountCredit(state.previousProjectState.users, action.payload)
         let previousProject = {
+            ...state.previousProjectState,
             users: state.previousProjectState.users,
             expenses: [{ ...action.payload, credit }, ...state.previousProjectState.expenses]
         }
@@ -59,6 +60,7 @@ export const expenseReducer = createReducer(expenseInitialState,
     on(splitEqually, (state, action) => {
         const credit = computeSplitEquallyCredit(state.previousProjectState.users, action.payload)
         let previousProject = {
+            ...state.previousProjectState,
             users: state.previousProjectState.users,
             expenses: [{ ...action.payload, credit }, ...state.previousProjectState.expenses]
         }
@@ -71,6 +73,7 @@ export const expenseReducer = createReducer(expenseInitialState,
     on(settlePayment, (state, action) => {
         const credit = computeSettlementCredit(state.previousProjectState.users, action.payload)
         let previousProject = {
+            ...state.previousProjectState,
             users: state.previousProjectState.users,
             expenses: [{ ...action.payload, credit }, ...state.previousProjectState.expenses]
         }
@@ -84,6 +87,7 @@ export const expenseReducer = createReducer(expenseInitialState,
     on(deleteExpenseById, (state, action) => {
         const id = action.payload;
         let previousProject = {
+            ...state.previousProjectState,
             users: state.previousProjectState.users,
             expenses:  state.previousProjectState.expenses.filter(it => it.id != id)
         }
