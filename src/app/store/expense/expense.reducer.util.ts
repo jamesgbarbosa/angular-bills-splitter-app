@@ -154,7 +154,7 @@ export const getCreditObject = (users: User[], expense: Expense) => {
     }
 }
 
-const computeOwedFillAmountCredit = (users: User[], expense: Expense) => {
+export const computeOwedFillAmountCredit = (users: User[], expense: Expense) => {
     const otherUsersPart = +(+expense.amountPaid / (users.length - 1)) * -1;
     const credit = users
         .reduce((obj, it) => {
@@ -168,7 +168,7 @@ const computeOwedFillAmountCredit = (users: User[], expense: Expense) => {
     return credit;
 }
 
-const computeSplitEquallyCredit = (users: User[], expense: Expense) => {
+export const computeSplitEquallyCredit = (users: User[], expense: Expense) => {
     const numberOfUsers = users.length;
 
     let payeePart = +((+expense.amountPaid * (numberOfUsers - 1)) / numberOfUsers)
@@ -185,7 +185,7 @@ const computeSplitEquallyCredit = (users: User[], expense: Expense) => {
     return credit;
 }
 
-const computeSettlementCredit = (users: User[], expense: Expense) => {
+export const computeSettlementCredit = (users: User[], expense: Expense) => {
     if (expense && expense.paidBy && expense.paidBy.id && expense.settlementTo) {
         const credit = {
             [expense.paidBy.id]: expense.amountPaid,

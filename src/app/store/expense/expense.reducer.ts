@@ -1,15 +1,25 @@
 import { createReducer, on } from "@ngrx/store";
-import { deleteExpenseById, loadState, owedFullAmount, settlePayment, splitEqually, updateExpense } from "./expense.action";
+import { deleteExpenseById, loadState, owedFullAmount, pushChanges, settlePayment, splitEqually, updateExpense } from "./expense.action";
 import { Expense } from "../../../model/expenses.model";
-import { getCreditObject, processProject } from "./expense.reducer.util";
+import { computeOwedFillAmountCredit, computeSettlementCredit, computeSplitEquallyCredit, getCreditObject, processProject } from "./expense.reducer.util";
 import { Project } from "../../../model/project.model";
+import { ProjectState } from "./expense.model";
 
-const expenseInitialState: Project = {
-    users: [
+const expenseInitialState: ProjectState = {
+    project: {
+        users: [
 
-    ],
-    expenses: [
-    ]
+        ],
+        expenses: [
+        ]
+    },
+    previousProjectState: {
+        users: [
+
+        ],
+        expenses: [
+        ]
+    }
 }
 
 const expenseActionWrapper = (newState: Project, callback?: Function) => {
@@ -18,62 +28,90 @@ const expenseActionWrapper = (newState: Project, callback?: Function) => {
     return newState;
 }
 
+const emptyProject = {
+    users: [
+
+    ],
+    expenses: [
+    ]
+}
+
 export const expenseReducer = createReducer(expenseInitialState,
     on(loadState, (state, action) => {
-        return expenseActionWrapper({ ...action.payload })
+        return {
+            ...state,
+            previousProjectState: { ...action.payload }
+        };
     }),
 
     on(owedFullAmount, (state, action) => {
-        return expenseActionWrapper(state, () => {
-            const credit = getCreditObject(state.users, action.payload)
-            return {
-                ...state,
-                users: state.users,
-                expenses: [{ ...action.payload, credit }, ...state.expenses]
-            };
-        })
+        const credit = computeOwedFillAmountCredit(state.previousProjectState.users, action.payload)
+        let previousProject = {
+            users: state.previousProjectState.users,
+            expenses: [{ ...action.payload, credit }, ...state.previousProjectState.expenses]
+        }
+        processProject(previousProject);
+        return {
+            ...state,
+            previousProjectState: previousProject
+        };
     }),
     on(splitEqually, (state, action) => {
-        return expenseActionWrapper(state, () => {
-            const credit = getCreditObject(state.users, action.payload)
-            return {
-                ...state,
-                users: state.users,
-                expenses: [{ ...action.payload, credit }, ...state.expenses]
-            }
-        })
-    }),
-
+        const credit = computeSplitEquallyCredit(state.previousProjectState.users, action.payload)
+        let previousProject = {
+            users: state.previousProjectState.users,
+            expenses: [{ ...action.payload, credit }, ...state.previousProjectState.expenses]
+        }
+        processProject(previousProject);
+        return {
+            ...state,
+            previousProjectState: previousProject
+        };
+    }), 
     on(settlePayment, (state, action) => {
-        return expenseActionWrapper(state, () => {
-            let expense = action.payload;
-            expense = {
-                ...expense,
-                credit: getCreditObject(state.users, expense)
-            }
-            return {
-                ...state,
-                users: state.users,
-                expenses: [expense, ...state.expenses]
-            }
-        })
+        const credit = computeSettlementCredit(state.previousProjectState.users, action.payload)
+        let previousProject = {
+            users: state.previousProjectState.users,
+            expenses: [{ ...action.payload, credit }, ...state.previousProjectState.expenses]
+        }
+        processProject(previousProject);
+        return {
+            ...state,
+            previousProjectState: previousProject
+        };
     }),
 
     on(deleteExpenseById, (state, action) => {
-        return expenseActionWrapper(state, () => {
-            const id = action.payload;
-            return { ...state, expenses: state.expenses.filter(it => it.id != id) }
-        })
+        const id = action.payload;
+        let previousProject = {
+            users: state.previousProjectState.users,
+            expenses:  state.previousProjectState.expenses.filter(it => it.id != id)
+        }
+        processProject(previousProject);
+        return {
+            ...state,
+            previousProjectState: previousProject
+        };
     }),
 
     on(updateExpense, (state, action) => {
-        return expenseActionWrapper(state, () => {
-            return updateExpenseByExpenseObject(action.payload, state)
-        })
+        let previousProject = updateExpenseByExpenseObject(action.payload, state.previousProjectState)
+        processProject(previousProject);
+        return {
+            ...state,
+            previousProjectState: previousProject
+        };
+    }),
+
+    on(pushChanges, (state) => {
+        return {
+            ...state,
+            project: {...state.previousProjectState}
+        }
     })
 )
 
-const updateExpenseByExpenseObject= (updateExpensed: Expense, project: Project) => {
+const updateExpenseByExpenseObject = (updateExpensed: Expense, project: Project) => {
     updateExpensed = { ...updateExpensed, credit: getCreditObject(project.users, updateExpensed) }
     const prevExpense = project.expenses.find((expense: Expense) => expense.id == updateExpensed.id)
     let indexToUpdate = project.expenses.findIndex((expense: Expense) => expense.id === updateExpensed.id);
@@ -84,3 +122,4 @@ const updateExpenseByExpenseObject= (updateExpensed: Expense, project: Project) 
     return { ...project, expenses: expenses }
 }
 
+                          

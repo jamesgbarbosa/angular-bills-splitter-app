@@ -2,7 +2,7 @@
     <table class="table table-striped table-bordered">
         <thead>
             <tr>
-                <th scope="col">Date Created</th>
+                <!-- <th scope="col">Date Created</th> -->
                 <th scope="col">User</th>
                 <th scope="col">Transaction Name</th>
                 <th scope="col">Transaction Type</th>
@@ -12,9 +12,9 @@
         </thead>
         <tbody>
             <tr *ngFor="let it of data">
-                <td>
-                    {{it.dateCreated | date : 'short'}}
-                </td>
+                <!-- <td>
+                    {{it.dateCreated}}
+                </td> -->
                 <td>
                     {{it.paidBy?.name}}
                 </td>

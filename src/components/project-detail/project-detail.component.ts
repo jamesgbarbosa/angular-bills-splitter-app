@@ -10,13 +10,13 @@ import { OWED_FULL_AMOUNT, SETTLE, SPLIT_EQUALLY } from '../../constants/transac
 import { SettlePaymentModalComponent } from '../settle-payment-modal/settle-payment-modal.component';
 import { Project } from '../../model/project.model';
 import { Store } from '@ngrx/store';
-import { deleteExpenseById, loadState, owedFullAmount, settlePayment, splitEqually, updateExpense } from '../../app/store/expense/expense.action';
+import { deleteExpenseById, loadState, owedFullAmount, pushChanges, settlePayment, splitEqually, updateExpense } from '../../app/store/expense/expense.action';
 import { ActivatedRoute, Route, Router } from '@angular/router';
-// import sample from './sample.json'
+import sample from './sample.json'
 import { Observable } from 'rxjs';
-import { selectExpense } from '../../app/store/expense/expense.selector';
+import { previousProjectState, selectExpense, selectProject } from '../../app/store/expense/expense.selector';
 import { processProject } from '../../app/store/expense/expense.reducer.util';
-import { ProjectService } from '../project/project.service';
+import { ProjectFirebaseService } from '../project/project.firebase.service';
 
 @Component({
   selector: 'project-detail',
@@ -26,42 +26,46 @@ import { ProjectService } from '../project/project.service';
   styleUrl: './project-detail.component.scss'
 })
 export class ProjectDetailComponent implements OnInit {
-  // @Input() data!: Project;
-  isModal = true;
-  userData: any = []
-  // expense$: Observable<any>;
-  expenseReducerOutput: any = { users: [], expenses: [] };
-
-  transactionTypes = [
-    { id: SPLIT_EQUALLY, name: "Split equally" },
-    { id: OWED_FULL_AMOUNT, name: "Owed full amount" }
-  ]
-
   dialog = inject(MatDialog)
   store = inject(Store<any>)
   router = inject(Router)
   route = inject(ActivatedRoute)
 
-  constructor(private projectService: ProjectService) {
+  isModal = true;
+  userData: any = []
+  currentProjectState: any = { users: [], expenses: [] };
+  previousProjectState: any = { users: [], expenses: [] };
 
-  }
+  projectFireBaseId = "";
+  transactionTypes = [
+    { id: SPLIT_EQUALLY, name: "Split equally" },
+    { id: OWED_FULL_AMOUNT, name: "Owed full amount" }
+  ]
+
+  constructor(private projectFirebaseService: ProjectFirebaseService) { }
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((query: any) => {
       let id = query.params.id;
-      this.projectService.getProjectById(id).then((project: any) => {
+      this.projectFireBaseId = id;
+      this.projectFirebaseService.getProjectById(id).then((project: any) => {
         this.store.dispatch(loadState({ payload: project.data() }))
+        this.store.dispatch(pushChanges())
       })
     });
-      
-    this.store.select("expense").subscribe((it: { users: User[], expenses: Expense[] }) => {
-      this.expenseReducerOutput = it;
+
+    this.store.select(selectProject).subscribe((it: { users: User[], expenses: Expense[] }) => {
+      this.currentProjectState = it;
     })
-    // this.store.dispatch(loadState({ payload: sample }))
+    this.store.select(previousProjectState).subscribe((it: { users: User[], expenses: Expense[] }) => {
+      this.previousProjectState = it;
+    })
+
+    // this.store.dispatch(loadState({payload: sample}))
   }
 
   _initializeExpense(result: Expense) {
-    let paidBy = this.expenseReducerOutput.users.find((it: any) => it.id == result.userId)
+    let paidBy = this.currentProjectState.users.find((it: any) => it.id == result.userId)
     let expense: Expense = {
       // userId: paidBy.id,
       id: new Date().getMilliseconds() + "",
@@ -72,30 +76,53 @@ export class ProjectDetailComponent implements OnInit {
       name: result.name,
       transactionType: result.transactionType
     }
+
     switch (expense.transactionType) {
       case SPLIT_EQUALLY: {
-        this.store.dispatch(splitEqually({ payload: expense }))
+        this.initFirebaseProcess(() => {
+          this.store.dispatch(splitEqually({ payload: expense }))
+        })
         break;
       }
       case OWED_FULL_AMOUNT: {
-        this.store.dispatch(owedFullAmount({ payload: expense }))
+        this.initFirebaseProcess(() => {
+          this.store.dispatch(owedFullAmount({ payload: expense }))
+        })
         break;
       }
       case SETTLE: {
         let newExpense = { ...expense }
-        const settlementTo = this.expenseReducerOutput.users.find((it: any) => it.id == result.settlementTo)
+        const settlementTo = this.currentProjectState.users.find((it: any) => it.id == result.settlementTo)
         newExpense.settlementTo = result.settlementTo
         newExpense.name = this.getSettlementExpenseName(settlementTo);
-        this.store.dispatch(settlePayment({ payload: newExpense }))
+
+        this.initFirebaseProcess(() => {
+          this.store.dispatch(settlePayment({ payload: newExpense }))
+        })
         break;
       }
     }
   }
 
+  initFirebaseProcess(callback?: Function) {
+    let previousState = { ...this.currentProjectState }
+    if (callback) {
+      callback();
+    }
+    this.projectFirebaseService.updateProject(this.projectFireBaseId, this.previousProjectState).then((result) => {
+      console.log("Successfully saved")
+      this.store.dispatch(pushChanges());
+    }).catch((error) => {
+      this.store.dispatch(loadState({ payload: previousState }))
+      alert("Service is currently unavailable");
+      // this.store.dispatch(loadState({ payload: previousProjectState }))
+    });
+  }
+
 
   onAddExpenseModal() {
     const dialogRef = this.dialog.open(ExpenseModalComponent, {
-      data: { users: this.expenseReducerOutput.users, transactionTypes: this.transactionTypes, mode: 'ADD' }
+      data: { users: this.currentProjectState.users, transactionTypes: this.transactionTypes, mode: 'ADD' }
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -106,14 +133,14 @@ export class ProjectDetailComponent implements OnInit {
   }
 
   onEditExpenseButtonClick(id: string) {
-    const expense = this.expenseReducerOutput.expenses.find((it: any) => it.id == id)
+    const expense = this.currentProjectState.expenses.find((it: any) => it.id == id)
     switch (expense.transactionType) {
       case 'SPLIT_EQUALLY': {
-        this._openEditExpenseModal(expense);
+        this.openEditExpenseModal(expense);
         break;
       }
       case 'OWED_FULL_AMOUNT': {
-        this._openEditExpenseModal(expense);
+        this.openEditExpenseModal(expense);
         break;
       }
       case 'SETTLE': {
@@ -123,14 +150,14 @@ export class ProjectDetailComponent implements OnInit {
     }
   }
 
-  _openEditExpenseModal(expense: Expense) {
+  openEditExpenseModal(expense: Expense) {
     if (expense) {
       const dialogRef = this.dialog.open(ExpenseModalComponent, {
-        data: { users: this.expenseReducerOutput.users, transactionTypes: this.transactionTypes, mode: 'EDIT', expense }
+        data: { users: this.currentProjectState.users, transactionTypes: this.transactionTypes, mode: 'EDIT', expense }
       });
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
-          let paidBy = this.expenseReducerOutput.users.find((it: any) => it.id == result.userId)
+          let paidBy = this.currentProjectState.users.find((it: any) => it.id == result.userId)
           let newExpense: Expense = {
             ...expense,
             paidBy: paidBy,
@@ -139,7 +166,10 @@ export class ProjectDetailComponent implements OnInit {
             name: result.name,
             transactionType: result.transactionType
           }
-          this.store.dispatch(updateExpense({ payload: newExpense }))
+
+          this.initFirebaseProcess(() => {
+            this.store.dispatch(updateExpense({ payload: newExpense }))
+          })
         }
       });
     } else {
@@ -149,20 +179,20 @@ export class ProjectDetailComponent implements OnInit {
 
   _openEditSettleModal(expense: Expense) {
     if (expense) {
-      // delete expense from this.expenseReducerOutput
+      // delete expense from this.currentProjectState
       // to intiialize values to settlement modal 
-      let projectTemp = { ...this.expenseReducerOutput }
+      let projectTemp = { ...this.currentProjectState }
       projectTemp = { ...projectTemp, expenses: projectTemp.expenses.filter((e: Expense) => e.id != expense.id) }
       processProject(projectTemp);
 
       const dialogRef = this.dialog.open(SettlePaymentModalComponent, {
-        data: { currentUsersState: { ...this.expenseReducerOutput }.users, previousUsersState: projectTemp.users, expense, mode: 'EDIT' }
+        data: { currentUsersState: { ...this.currentProjectState }.users, previousUsersState: projectTemp.users, expense, mode: 'EDIT' }
       });
 
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
-          let paidBy = this.expenseReducerOutput.users.find((it: any) => it.id == result.userId)
-          let settlementTo = this.expenseReducerOutput.users.find((it: any) => it.id == result.settlementTo)
+          let paidBy = this.currentProjectState.users.find((it: any) => it.id == result.userId)
+          let settlementTo = this.currentProjectState.users.find((it: any) => it.id == result.settlementTo)
           let newExpense: Expense = {
             id: expense.id,
             paidBy: paidBy,
@@ -172,7 +202,10 @@ export class ProjectDetailComponent implements OnInit {
             transactionType: expense.transactionType,
             name: this.getSettlementExpenseName(settlementTo)
           }
-          this.store.dispatch(updateExpense({ payload: newExpense }))
+
+          this.initFirebaseProcess(() => {
+            this.store.dispatch(updateExpense({ payload: newExpense }))
+          })
         }
       });
     } else {
@@ -182,7 +215,7 @@ export class ProjectDetailComponent implements OnInit {
 
   onSettlePaymentModal() {
     const dialogRef = this.dialog.open(SettlePaymentModalComponent, {
-      data: { previousUsersState: this.expenseReducerOutput.users, currentUsersState: this.expenseReducerOutput.users, transactionTypes: this.transactionTypes, mode: 'ADD' }
+      data: { previousUsersState: this.currentProjectState.users, currentUsersState: this.currentProjectState.users, transactionTypes: this.transactionTypes, mode: 'ADD' }
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -199,12 +232,14 @@ export class ProjectDetailComponent implements OnInit {
 
   deleteExpense(id: string) {
     const dialogRef = this.dialog.open(ExpenseModalComponent, {
-      data: { users: this.expenseReducerOutput.users, transactionTypes: this.transactionTypes, mode: 'DELETE' }
+      data: { users: this.currentProjectState.users, transactionTypes: this.transactionTypes, mode: 'DELETE' }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.store.dispatch(deleteExpenseById({ payload: id }))
+        this.initFirebaseProcess(() => {
+          this.store.dispatch(deleteExpenseById({ payload: id }))
+        });
       }
     });
   }

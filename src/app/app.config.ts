@@ -6,8 +6,9 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { provideStore } from '@ngrx/store';
 import { expenseReducer } from './store/expense/expense.reducer';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
-import { getAuth, provideAuth } from '@angular/fire/auth';
 import { getFirestore, provideFirestore } from '@angular/fire/firestore';
+import { provideEffects } from '@ngrx/effects';
+import { ExpenseEffects } from './store/expense/expense.effects';
 // import { environment } from '../environments/environment';
 
 const firebaseConfig = {
@@ -24,6 +25,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideAnimationsAsync(),
     provideStore({ expense: expenseReducer }),
+    provideEffects([ExpenseEffects]),
     importProvidersFrom([
       provideFirestore(() => getFirestore()),
       provideFirebaseApp(() => initializeApp(firebaseConfig))

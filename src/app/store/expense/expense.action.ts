@@ -31,3 +31,7 @@ export const updateExpense = createAction(
     '[Expense] Update Expense',
     props<{payload: Expense}>()
 )
+
+export const pushChanges = createAction(
+    '[Expense] Push Changes'
+)

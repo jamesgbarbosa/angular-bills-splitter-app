@@ -1,15 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { CreateProjectModalComponent } from '../create-project-modal/create-project-modal.component';
 import { Project } from '../../model/project.model';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { loadState } from '../../app/store/expense/expense.action';
-import { ProjectService } from './project.service';
+import { loadState, pushChanges } from '../../app/store/expense/expense.action';
+import { ProjectFirebaseService } from './project.firebase.service';
 import { AngularFireModule } from "@angular/fire/compat";
-import { HttpClient } from '@angular/common/http';
-import { Firestore, collection, addDoc } from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-project',
@@ -21,8 +19,8 @@ import { Firestore, collection, addDoc } from '@angular/fire/firestore';
 export class ProjectComponent {
   projects: Project[] = []
 
-  constructor(private projectService: ProjectService, private dialog: MatDialog, private store: Store<any>, private router: Router) {
-    this.projectService.getProjects().subscribe((result: any) => {
+  constructor(private projectFirebaseService: ProjectFirebaseService, private dialog: MatDialog, private store: Store<any>, private router: Router) {
+    this.projectFirebaseService.getProjects().subscribe((result: any) => {
       if (result) {
         this.projects = result;
       }
@@ -42,9 +40,10 @@ export class ProjectComponent {
           users: result.users.map((it: any, index: number) => ({ id: index + 1, name: it.name, amount: 0 })),
           expenses: []
         }
-        this.projectService.saveProject(project).then((result: any) => {
-          this.store.dispatch(loadState({ payload: project }))
-          this.router.navigate(['project', projectId])
+        this.projectFirebaseService.saveProject(project).then((result: any) => {
+          // this.store.dispatch(loadState({ payload: project }))
+          // this.store.dispatch(pushChanges())
+          this.router.navigate(['project', result?.id])
         }).catch((err: any) => {
           console.log("Error", err)
         })
