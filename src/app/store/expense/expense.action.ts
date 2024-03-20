@@ -12,6 +12,11 @@ export const owedFullAmount = createAction(
     props<{payload: Expense}>()
 )
 
+export const customExpense = createAction(
+    '[Expense] Custom Expense',
+    props<{payload: Expense}>()
+)
+
 export const settlePayment = createAction(
     '[Expense] Settle Payment',
     props<{payload: Expense}>()

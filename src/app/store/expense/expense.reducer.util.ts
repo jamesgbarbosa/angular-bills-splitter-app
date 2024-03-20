@@ -148,6 +148,9 @@ export const getCreditObject = (users: User[], expense: Expense) => {
         case 'SETTLE': {
             return computeSettlementCredit(users, expense)
         }
+        case 'CUSTOM': {
+            return expense.credit
+        }
         default: {
             return null;
         }

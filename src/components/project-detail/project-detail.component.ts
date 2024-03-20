@@ -6,11 +6,11 @@ import { User } from '../../model/user.model';
 import { Expense } from '../../model/expenses.model';
 import { MatDialog } from '@angular/material/dialog';
 import { ExpenseModalComponent } from '../expense-modal/expense-modal.component';
-import { OWED_FULL_AMOUNT, SETTLE, SPLIT_EQUALLY } from '../../constants/transaction-types.constant';
+import { CUSTOM, OWED_FULL_AMOUNT, SETTLE, SPLIT_EQUALLY } from '../../constants/transaction-types.constant';
 import { SettlePaymentModalComponent } from '../settle-payment-modal/settle-payment-modal.component';
 import { Project } from '../../model/project.model';
 import { Store } from '@ngrx/store';
-import { deleteExpenseById, loadState, owedFullAmount, pushChanges, settlePayment, splitEqually, updateExpense } from '../../app/store/expense/expense.action';
+import { customExpense, deleteExpenseById, loadState, owedFullAmount, pushChanges, settlePayment, splitEqually, updateExpense } from '../../app/store/expense/expense.action';
 import { ActivatedRoute, Route, Router } from '@angular/router';
 import sample from './sample.json'
 import { Observable } from 'rxjs';
@@ -39,7 +39,8 @@ export class ProjectDetailComponent implements OnInit {
   projectFireBaseId = "";
   transactionTypes = [
     { id: SPLIT_EQUALLY, name: "Split equally" },
-    { id: OWED_FULL_AMOUNT, name: "Owed full amount" }
+    { id: OWED_FULL_AMOUNT, name: "Owed full amount" },
+    { id: CUSTOM, name: "Custom" }
   ]
 
   constructor(private projectFirebaseService: ProjectFirebaseService) { }
@@ -96,6 +97,13 @@ export class ProjectDetailComponent implements OnInit {
         })
         break;
       }
+      case CUSTOM: {
+        this.initFirebaseProcess(() => {
+          expense.credit = result.credit;
+          this.store.dispatch(customExpense({ payload: expense }))
+        })
+        break;
+      }
       case SETTLE: {
         let newExpense = { ...expense }
         const settlementTo = this.currentProjectState.users.find((it: any) => it.id == result.settlementTo)
@@ -141,6 +149,10 @@ export class ProjectDetailComponent implements OnInit {
   onEditExpenseButtonClick(id: string) {
     const expense = this.currentProjectState.expenses.find((it: any) => it.id == id)
     switch (expense.transactionType) {
+      case 'CUSTOM': {
+        this.openEditExpenseModal(expense);
+        break;
+      }
       case 'SPLIT_EQUALLY': {
         this.openEditExpenseModal(expense);
         break;
@@ -165,7 +177,8 @@ export class ProjectDetailComponent implements OnInit {
         if (result) {
           let paidBy = this.currentProjectState.users.find((it: any) => it.id == result.userId)
           let newExpense: Expense = {
-            ...expense,
+            ...result ,
+            id: expense.id,
             paidBy: paidBy,
             dateUpdated: new Date(),
             amountPaid: +result.amountPaid,
@@ -200,6 +213,7 @@ export class ProjectDetailComponent implements OnInit {
           let paidBy = this.currentProjectState.users.find((it: any) => it.id == result.userId)
           let settlementTo = this.currentProjectState.users.find((it: any) => it.id == result.settlementTo)
           let newExpense: Expense = {
+            ...result,
             id: expense.id,
             paidBy: paidBy,
             dateUpdated: new Date(),

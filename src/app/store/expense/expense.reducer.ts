@@ -1,5 +1,5 @@
 import { createReducer, on } from "@ngrx/store";
-import { deleteExpenseById, loadState, owedFullAmount, pushChanges, settlePayment, splitEqually, updateExpense } from "./expense.action";
+import { customExpense, deleteExpenseById, loadState, owedFullAmount, pushChanges, settlePayment, splitEqually, updateExpense } from "./expense.action";
 import { Expense } from "../../../model/expenses.model";
 import { computeOwedFillAmountCredit, computeSettlementCredit, computeSplitEquallyCredit, getCreditObject, processProject } from "./expense.reducer.util";
 import { Project } from "../../../model/project.model";
@@ -42,6 +42,15 @@ export const expenseReducer = createReducer(expenseInitialState,
     }), 
     on(settlePayment, (state, action) => {
         const credit = computeSettlementCredit(state.previousProjectState.users, action.payload)
+        let previousProject = initExpenseComputation(state, action, credit);
+        return {
+            ...state,
+            previousProjectState: previousProject
+        };
+    }),
+
+    on(customExpense, (state, action) => {
+        const credit = action.payload.credit;
         let previousProject = initExpenseComputation(state, action, credit);
         return {
             ...state,
