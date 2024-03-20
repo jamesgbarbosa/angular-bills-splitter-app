@@ -65,16 +65,17 @@ export class ExpenseModalComponent implements OnInit {
 
   initCreditObject(id: string) {
     this.creditArray.clear();
-    [...this.data.users].sort((a, b) => (a.id == id ? -1 : 1)
-    ).forEach((user: User | any) => {
+    // [...this.data.users].sort((a, b) => (a.id == id ? -1 : 1))
+    [...this.data.users].filter((it) => it.id != id)
+    .forEach((user: User | any) => {
       this.addCredit(user.id, "0")
     })
   }
 
   get totalCredit() {
-    return this.creditArray.value.filter((it: any) => (it.userId != this.form.get('userName').value)).reduce((total: number, obj: any) => {
+    return +this.creditArray.value.reduce((total: number, obj: any) => {
       return total + +obj.amount;
-    }, 0)
+    }, 0).toFixed(2)
   }
 
   get isCreditMapValueEqualAmountPaid() {
@@ -105,15 +106,6 @@ export class ExpenseModalComponent implements OnInit {
     delete obj['credits']
     obj['credit'] = this.initCredit();
     this.dialogRef.close(obj)
-  }
-
-  onAmountPaidChange(event: any) {
-    const amount = event.target.value;
-    // this.form.get('userName').value
-    const control = this.creditArray.at(0).get('amount') as FormControl;
-    if (control) {
-      control.setValue(amount);
-    }
   }
 
   initCredit() {

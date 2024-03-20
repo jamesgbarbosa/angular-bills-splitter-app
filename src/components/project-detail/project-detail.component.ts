@@ -40,7 +40,6 @@ export class ProjectDetailComponent implements OnInit {
   transactionTypes = [
     { id: SPLIT_EQUALLY, name: "Split equally" },
     { id: OWED_FULL_AMOUNT, name: "Owed full amount" },
-    { id: CUSTOM, name: "Custom" }
   ]
 
   constructor(private projectFirebaseService: ProjectFirebaseService) { }
@@ -63,9 +62,15 @@ export class ProjectDetailComponent implements OnInit {
 
   initializeProjectDetailData(id: string) {
     this.isLoading = true;
-    this.projectFirebaseService.getProjectById(id).then((project: any) => {
-      this.store.dispatch(loadState({ payload: project.data() }))
+    this.projectFirebaseService.getProjectById(id).then((p: any) => {
+      const project: Project = p.data();
+      this.store.dispatch(loadState({ payload: p.data() }))
       this.store.dispatch(pushChanges())
+
+      if (project.users?.length > 2) {
+        // Add custom option for projects with more than 2 users
+        this.transactionTypes.push({ id: CUSTOM, name: "Custom" })
+      }
     }).finally(() => {
       this.isLoading = false;
     })
@@ -177,7 +182,7 @@ export class ProjectDetailComponent implements OnInit {
         if (result) {
           let paidBy = this.currentProjectState.users.find((it: any) => it.id == result.userId)
           let newExpense: Expense = {
-            ...result ,
+            ...result,
             id: expense.id,
             paidBy: paidBy,
             dateUpdated: new Date(),
