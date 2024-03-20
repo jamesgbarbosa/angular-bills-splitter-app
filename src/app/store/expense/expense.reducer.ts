@@ -7,33 +7,13 @@ import { ProjectState } from "./expense.model";
 
 const expenseInitialState: ProjectState = {
     project: {
-        users: [
-
-        ],
-        expenses: [
-        ]
+        users: [],
+        expenses: []
     },
     previousProjectState: {
-        users: [
-
-        ],
-        expenses: [
-        ]
+        users: [],
+        expenses: []
     }
-}
-
-const expenseActionWrapper = (newState: Project, callback?: Function) => {
-    newState = callback ? callback() : newState;
-    processProject(newState);
-    return newState;
-}
-
-const emptyProject = {
-    users: [
-
-    ],
-    expenses: [
-    ]
 }
 
 export const expenseReducer = createReducer(expenseInitialState,
@@ -46,12 +26,7 @@ export const expenseReducer = createReducer(expenseInitialState,
 
     on(owedFullAmount, (state, action) => {
         const credit = computeOwedFillAmountCredit(state.previousProjectState.users, action.payload)
-        let previousProject = {
-            ...state.previousProjectState,
-            users: state.previousProjectState.users,
-            expenses: [{ ...action.payload, credit }, ...state.previousProjectState.expenses]
-        }
-        processProject(previousProject);
+        let previousProject = initExpenseComputation(state, action, credit);
         return {
             ...state,
             previousProjectState: previousProject
@@ -59,12 +34,7 @@ export const expenseReducer = createReducer(expenseInitialState,
     }),
     on(splitEqually, (state, action) => {
         const credit = computeSplitEquallyCredit(state.previousProjectState.users, action.payload)
-        let previousProject = {
-            ...state.previousProjectState,
-            users: state.previousProjectState.users,
-            expenses: [{ ...action.payload, credit }, ...state.previousProjectState.expenses]
-        }
-        processProject(previousProject);
+        let previousProject = initExpenseComputation(state, action, credit);
         return {
             ...state,
             previousProjectState: previousProject
@@ -72,12 +42,7 @@ export const expenseReducer = createReducer(expenseInitialState,
     }), 
     on(settlePayment, (state, action) => {
         const credit = computeSettlementCredit(state.previousProjectState.users, action.payload)
-        let previousProject = {
-            ...state.previousProjectState,
-            users: state.previousProjectState.users,
-            expenses: [{ ...action.payload, credit }, ...state.previousProjectState.expenses]
-        }
-        processProject(previousProject);
+        let previousProject = initExpenseComputation(state, action, credit);
         return {
             ...state,
             previousProjectState: previousProject
@@ -114,6 +79,16 @@ export const expenseReducer = createReducer(expenseInitialState,
         }
     })
 )
+
+const initExpenseComputation = (state: ProjectState, action: {payload: Expense}, credit: any) => {
+    let previousProject = {
+        ...state.previousProjectState,
+        users: state.previousProjectState.users,
+        expenses: [{ ...action.payload, credit }, ...state.previousProjectState.expenses]
+    }
+    processProject(previousProject)
+    return previousProject;
+}
 
 const updateExpenseByExpenseObject = (updateExpensed: Expense, project: Project) => {
     updateExpensed = { ...updateExpensed, credit: getCreditObject(project.users, updateExpensed) }
