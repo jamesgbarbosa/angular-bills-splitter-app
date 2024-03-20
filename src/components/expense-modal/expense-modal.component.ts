@@ -64,11 +64,11 @@ export class ExpenseModalComponent implements OnInit {
   }
 
   initCreditObject(id: string) {
+    const existingExpense = this.data?.expense?.credit;
     this.creditArray.clear();
-    // [...this.data.users].sort((a, b) => (a.id == id ? -1 : 1))
     [...this.data.users].filter((it) => it.id != id)
     .forEach((user: User | any) => {
-      this.addCredit(user.id, "0")
+      this.addCredit(user.id, existingExpense ? Math.abs(existingExpense[user.id])+"" : "0")
     })
   }
 
