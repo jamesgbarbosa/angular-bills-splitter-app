@@ -2,7 +2,32 @@
     <!-- List of uses involved -->
     <div class="flex">
         <div class="info-item" *ngFor="let user of project?.users">
-            <div>
+            <div class="card card-props">
+                <div class="card-body">
+                    <h6 class="card-title">
+                        {{user.name}}
+                        <span *ngIf="user.amount != 0; else allSettled"
+                            [ngClass]="user.amount > 0 ? 'text-success':'text-danger'">
+                            {{user.amount > 0 ? "is owed $" + (user.amount | abs) : "owes $" + (user.amount | abs )}}
+                        </span>
+                    </h6>
+                    <div class="ms-2" *ngFor="let item of user.debtsMap | keyvalue">
+                        <label class="card-text">
+                            You owe <b>${{(item.value | abs | number : '1.2-2')}}</b> to <b
+                                class="text-danger">{{item.key}}</b>
+                        </label>
+                    </div>
+
+
+                    <div class="ms-2" *ngFor="let item of user.isOwedMap | keyvalue">
+                        <label class="card-text">
+                            <b class="text-success">{{item.key}}</b> owes you <b>${{item.value | abs | number :
+                                '1.2-2'}}</b>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <!-- <div>
                 <h5>{{user.name}}
                     <span *ngIf="user.amount != 0; else allSettled" [ngClass]="user.amount > 0 ? 'text-success':'text-danger'">
                         {{user.amount > 0 ? "is owed $" + (user.amount | abs) : "owes $" + (user.amount | abs )}}
@@ -21,7 +46,7 @@
                         <b class="text-success">{{item.key}}</b> owes you <b>${{item.value | abs | number : '1.2-2'}}</b>
                     </label>
                 </div>
-            </div>
+            </div> -->
         </div>
         <hr>
     </div>

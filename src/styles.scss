@@ -9,6 +9,10 @@
 // Be sure that you only ever include this mixin once!
 @include mat.core();
 
+@import '../node_modules/bootstrap/scss/_functions.scss';
+@import '../node_modules/bootstrap/scss/_variables.scss';
+@import '../node_modules/bootstrap/scss/_mixins.scss';
+
 // Define the palettes for your theme using the Material Design palettes available in palette.scss
 // (imported above). For each palette, you can optionally specify a default, lighter, and darker
 // hue. Available color palettes: https://material.io/design/color/
@@ -39,11 +43,23 @@ $splitbillapp-theme: mat.define-light-theme((
 }
 
 body {
-    padding: 2rem 4rem;
+    padding: 0.1rem;
 }
-html, body { height: 100%; }
+
+html, body { font-size:1rem, 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 .clickable {
   cursor: pointer;
+}
+
+@include media-breakpoint-down(md) {
+  html {
+    font-size: 0.7rem;
+  }
+}
+
+.flex-space-between {
+  display: flex;
+  justify-content: space-between;
 }
