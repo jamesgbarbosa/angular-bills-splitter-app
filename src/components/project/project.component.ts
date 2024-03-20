@@ -8,6 +8,7 @@ import { Store } from '@ngrx/store';
 import { loadState, pushChanges } from '../../app/store/expense/expense.action';
 import { ProjectFirebaseService } from './project.firebase.service';
 import { AngularFireModule } from "@angular/fire/compat";
+import { User } from '../../model/user.model';
 
 @Component({
   selector: 'app-project',
@@ -22,7 +23,7 @@ export class ProjectComponent {
   constructor(private projectFirebaseService: ProjectFirebaseService, private dialog: MatDialog, private store: Store<any>, private router: Router) {
     this.projectFirebaseService.getProjects().subscribe((result: any) => {
       if (result) {
-        this.projects = result;
+        this.projects = result.map((project: Project) => ({...project, users: project.users.map((it: User) => it.name).join(", ")}))
       }
     })
   }
