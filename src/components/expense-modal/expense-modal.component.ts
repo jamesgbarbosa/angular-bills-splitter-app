@@ -79,17 +79,17 @@ export class ExpenseModalComponent implements OnInit {
   }
 
   get isCreditMapValueEqualAmountPaid() {
-    return this.form.get('transactionType').value == 'CUSTOM' && this.totalCredit == +this.form.get('amountPaid').value
+    return this.form.get('transactionType').value == 'OWED_FULL_AMOUNT_CUSTOM' && this.totalCredit == +this.form.get('amountPaid').value
   }
 
 
   get isCreditMapExceedsAmountPaid() {
-     return this.form.get('transactionType').value == 'CUSTOM' && this.totalCredit > +this.form.get('amountPaid').value 
+     return this.form.get('transactionType').value == 'OWED_FULL_AMOUNT_CUSTOM' && this.totalCredit > +this.form.get('amountPaid').value 
   }
 
   get validateCustomCredit() {
     const transactionType = this.form.get('transactionType').value
-    if (transactionType == 'CUSTOM') {
+    if (transactionType == 'OWED_FULL_AMOUNT_CUSTOM') {
       return this.isCreditMapValueEqualAmountPaid;
     } else {
       return true;

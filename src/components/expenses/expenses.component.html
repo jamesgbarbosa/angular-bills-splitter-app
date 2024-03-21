@@ -22,7 +22,7 @@
                     {{it.name}}
                 </td>
                 <td>
-                    <span *ngIf="it.transactionType == 'CUSTOM'" class="badge bg-info"> Custom</span>
+                    <span *ngIf="it.transactionType == 'OWED_FULL_AMOUNT_CUSTOM'" class="badge bg-info">Owed Full Amount Custom</span>
                     <span *ngIf="it.transactionType == 'SETTLE'" class="badge bg-success"> Settle</span>
                     <span *ngIf="it.transactionType == 'SPLIT_EQUALLY'" class="badge bg-danger"> Split Equally</span>
                     <span *ngIf="it.transactionType == 'OWED_FULL_AMOUNT'" class="badge bg-warning text-dark"> Owed Full

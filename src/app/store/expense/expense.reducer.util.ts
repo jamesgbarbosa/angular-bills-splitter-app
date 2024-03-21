@@ -148,7 +148,7 @@ export const getCreditObject = (users: User[], expense: Expense) => {
         case 'SETTLE': {
             return computeSettlementCredit(users, expense)
         }
-        case 'CUSTOM': {
+        case 'OWED_FULL_AMOUNT_CUSTOM': {
             return expense.credit
         }
         default: {

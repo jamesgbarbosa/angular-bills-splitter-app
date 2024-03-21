@@ -16,17 +16,4 @@ import { Firestore, collection, addDoc } from '@angular/fire/firestore';
 })
 export class AppComponent {
   title = 'Split Bill App';
-  http = Inject(HttpClient)
-  constructor(private fireStore: Firestore) {
-
-    // this.saveProject({ test: "I love firebase" }).then( res => {
-    //   console.log("Project saved")
-    // })
-
-  }
-
-  // saveProject(project: any) {
-  //   const collectionInstance = collection(this.fireStore, 'projects');
-  //   return addDoc(collectionInstance, project)
-  // }
 }

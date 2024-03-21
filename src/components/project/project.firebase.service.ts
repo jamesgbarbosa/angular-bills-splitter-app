@@ -1,13 +1,9 @@
-import { HttpClient } from "@angular/common/http";
-import { Inject, Injectable } from "@angular/core";
+import { Injectable } from "@angular/core";
 import { Project } from "../../model/project.model";
 import { Firestore, addDoc, collection, collectionData, doc, getDoc, setDoc } from "@angular/fire/firestore";
-import { Observable, of } from "rxjs";
 
 @Injectable({ providedIn: 'root' })
 export class ProjectFirebaseService {
-    // firestore = Inject(Firestore)
-
 
     constructor(private fireStore: Firestore) { }
 

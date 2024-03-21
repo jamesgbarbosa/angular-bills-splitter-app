@@ -6,7 +6,7 @@ import { User } from '../../model/user.model';
 import { Expense } from '../../model/expenses.model';
 import { MatDialog } from '@angular/material/dialog';
 import { ExpenseModalComponent } from '../expense-modal/expense-modal.component';
-import { CUSTOM, OWED_FULL_AMOUNT, SETTLE, SPLIT_EQUALLY } from '../../constants/transaction-types.constant';
+import { OWED_FULL_AMOUNT, OWED_FULL_AMOUNT_CUSTOM, SETTLE, SPLIT_EQUALLY } from '../../constants/transaction-types.constant';
 import { SettlePaymentModalComponent } from '../settle-payment-modal/settle-payment-modal.component';
 import { Project } from '../../model/project.model';
 import { Store } from '@ngrx/store';
@@ -69,7 +69,7 @@ export class ProjectDetailComponent implements OnInit {
 
       if (project.users?.length > 2) {
         // Add custom option for projects with more than 2 users
-        this.transactionTypes.push({ id: CUSTOM, name: "Custom" })
+        this.transactionTypes.push({ id: OWED_FULL_AMOUNT_CUSTOM, name: "Owed full amount custom" })
       }
     }).finally(() => {
       this.isLoading = false;
@@ -102,7 +102,7 @@ export class ProjectDetailComponent implements OnInit {
         })
         break;
       }
-      case CUSTOM: {
+      case OWED_FULL_AMOUNT_CUSTOM: {
         this.initFirebaseProcess(() => {
           expense.credit = result.credit;
           this.store.dispatch(customExpense({ payload: expense }))
@@ -154,19 +154,19 @@ export class ProjectDetailComponent implements OnInit {
   onEditExpenseButtonClick(id: string) {
     const expense = this.currentProjectState.expenses.find((it: any) => it.id == id)
     switch (expense.transactionType) {
-      case 'CUSTOM': {
+      case OWED_FULL_AMOUNT_CUSTOM: {
         this.openEditExpenseModal(expense);
         break;
       }
-      case 'SPLIT_EQUALLY': {
+      case SPLIT_EQUALLY: {
         this.openEditExpenseModal(expense);
         break;
       }
-      case 'OWED_FULL_AMOUNT': {
+      case OWED_FULL_AMOUNT: {
         this.openEditExpenseModal(expense);
         break;
       }
-      case 'SETTLE': {
+      case SETTLE: {
         this._openEditSettleModal(expense);
         break;
       }

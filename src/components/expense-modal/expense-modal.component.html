@@ -38,7 +38,7 @@
                 </span>
             </div>
 
-            <div class="mb-3" *ngIf="form.get('transactionType').value == 'CUSTOM'">
+            <div class="mb-3" *ngIf="form.get('transactionType').value == 'OWED_FULL_AMOUNT_CUSTOM'">
                 <label for="credits" class="form-label">Credit Map</label>
                 <ng-container formArrayName="credits">
                     <table class="table table-striped table-bordered">
@@ -59,42 +59,22 @@
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text">$</span>
                                             </div>
-                                            <input type="text" class="form-control" formControlName="amount" type="number"
-                                                aria-label="Amount (to the nearest dollar)">
+                                            <input type="text" class="form-control" formControlName="amount"
+                                                type="number" aria-label="Amount (to the nearest dollar)">
                                         </div>
                                     </td>
                                 </ng-container>
                             </tr>
                             <tr>
                                 <td>Total:</td>
-                                <td>${{totalCredit}}/${{form.get('amountPaid').value}}</td>
+                                <td>
+                                    <span [ngClass]="isCreditMapExceedsAmountPaid ? 'text-danger' : ''">${{totalCredit}}/${{form.get('amountPaid').value}}</span>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
                 </ng-container>
-                
-                <!-- <ng-container formArrayName="credits">
-                    <ng-container *ngFor="let ug of creditArray.controls; let i = index; let l = last;">
-                        <div [formGroupName]="i" class="">
-                            <div class="row mb-1">
-                                <div class="col-3">
-                                    <label>{{ug.get('userName')?.value}}</label>
-                                </div>
-                                <div class="col-9">
-                                    <div class="input-group">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text">$</span>
-                                        </div>
-                                        <input type="text" class="form-control" formControlName="amount" type="number"
-                                            aria-label="Amount (to the nearest dollar)">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </ng-container>
-                </ng-container> -->
             </div>
-            
             <div class="flex-end">
                 <button type="button" class="btn btn-light" (click)="close()">Close</button>
                 <button type="button" class="btn btn-primary" [disabled]="form.invalid || !validateCustomCredit"
@@ -111,7 +91,3 @@
         </div>
     </ng-container>
 </div>
-<!-- {{totalCredit}} -->
-<!-- {{isCreditMapValueEqualAmountPaid}} -->
-<!-- {{form.value | json}} -->
-<!-- {{creditArray.value | json}}  -->
