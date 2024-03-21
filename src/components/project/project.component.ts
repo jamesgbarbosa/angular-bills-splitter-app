@@ -19,12 +19,18 @@ import { User } from '../../model/user.model';
 })
 export class ProjectComponent {
   projects: Project[] = []
+  isLoading = false;
 
   constructor(private projectFirebaseService: ProjectFirebaseService, private dialog: MatDialog, private store: Store<any>, private router: Router) {
+    this.isLoading = true;
     this.projectFirebaseService.getProjects().subscribe((result: any) => {
       if (result) {
         this.projects = result.map((project: Project) => ({...project, users: project.users.map((it: User) => it.name).join(", ")}))
       }
+      this.isLoading = false;
+    }, () => {
+      this.isLoading = false;
+      console.error("Error")
     })
   }
 

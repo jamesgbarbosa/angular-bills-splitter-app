@@ -1,24 +1,32 @@
 <div class="buttons-container btn-toolbar">
-    <button type="button" class="btn btn-primary me-1" (click)="openCreateProjectDialog()">Create New Project</button>
+    <button [disabled]="isLoading" type="button" class="btn btn-primary me-1" (click)="openCreateProjectDialog()">Create
+        New Project</button>
 </div>
 <div class="my-2"></div>
-<div id="projects">
-    <table class="table table-striped table-bordered">
-        <thead>
-            <tr>
-                <th scope="col">Project Name</th>
-                <th scope="col">Users</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr *ngFor="let it of projects" class="clickable" (click)="redirectToProject(it?.id || '')">
-                <td>
-                    {{it.projectId}}
-                </td>
-                <td>
-                    {{it.users}}
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+<ng-container *ngIf="!isLoading; else loading">
+    <div id="projects">
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th scope="col">Project Name</th>
+                    <th scope="col">Users</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let it of projects" class="clickable" (click)="redirectToProject(it?.id || '')">
+                    <td>
+                        {{it.projectId}}
+                    </td>
+                    <td>
+                        {{it.users}}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</ng-container>
+
+
+<ng-template #loading>
+    Loading...
+</ng-template>
