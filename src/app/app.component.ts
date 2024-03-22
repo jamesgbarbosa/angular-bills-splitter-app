@@ -6,11 +6,12 @@ import { CommonModule } from '@angular/common';
 import { AngularFireModule } from "@angular/fire/compat";
 import { HttpClient } from '@angular/common/http';
 import { Firestore, collection, addDoc } from '@angular/fire/firestore';
+import { HeaderComponent } from './shared/header/header.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, ProjectDetailComponent, CommonModule, RouterModule],
+  imports: [HeaderComponent, RouterOutlet, ProjectDetailComponent, CommonModule, RouterModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
