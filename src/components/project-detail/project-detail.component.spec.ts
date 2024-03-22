@@ -9,23 +9,30 @@ import { ActivatedRoute } from '@angular/router';
 describe('ProjectDetailComponent', () => {
   let component: ProjectDetailComponent;
   let fixture: ComponentFixture<ProjectDetailComponent>;
-  let firebaseServiceMock = {
-    getProjectById: jest.fn(() => of({data: () => {
-      return {
-        expenses: [],
-        users: [
-          {
-            name: "James"
-          },
-          {
-            name: "Jen"
-          }
-        ]
+  let firebaseServiceMock: any;
+  let activatedRouteMock: any;
+
+  let projectData = {
+    expenses: [],
+    users: [
+      {
+        name: "James"
+      },
+      {
+        name: "Jen"
       }
-    }}))
+    ]
   }
 
   beforeEach(async () => {
+    firebaseServiceMock = {
+      getProjectById: jest.fn()
+    }
+
+    activatedRouteMock = {
+      paramMap: jest.fn()
+    }
+
     await TestBed.configureTestingModule({
       imports: [ProjectDetailComponent],
       providers: [
@@ -47,27 +54,40 @@ describe('ProjectDetailComponent', () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            paramMap: of({ get: (key: any) => 'value' })
+            paramMap: of({params: {id: "1"}})
         }
         }
       ]
-    })
-      .compileComponents();
+    }).compileComponents();
 
-    fixture = TestBed.createComponent(ProjectDetailComponent);
-    component = fixture.componentInstance;
     // **Importance of detectChanges()
     //  Delayed change detection is intentional 
     //  and useful. It gives the tester an opportunity
     //  to inspect and change the state of the component 
     //  before Angular initiates data binding and calls lifecycle hooks
-    
   });
 
-  it('should create', () => {
+  beforeEach(() => {
+    fixture = TestBed.createComponent(ProjectDetailComponent);
+    component = fixture.componentInstance;
+  })
+
+  it('should call getProjectById onInit', () => {
+    const res = {
+      data: () => {
+        return projectData
+      }
+    }
+
+    jest.spyOn(firebaseServiceMock, 'getProjectById').mockReturnValue(Promise.resolve(res))
+
     fixture.detectChanges();
-    let expenses = component.currentProjectState.expenses
-    let users = component.currentProjectState.users
+
+    let expenses = component.currentProjectState.expenses;
+    let users = component.currentProjectState.users;
+
+    expect(firebaseServiceMock.getProjectById).toBeCalled()
+    expect(firebaseServiceMock.getProjectById).toBeCalledWith("1")
     expect(expenses.length).toBe(0)
     expect(users.length).toBe(0)
   });
