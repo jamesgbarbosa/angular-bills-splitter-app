@@ -68,7 +68,10 @@
                             <tr>
                                 <td>Total:</td>
                                 <td>
-                                    <span [ngClass]="isCreditMapExceedsAmountPaid ? 'text-danger' : ''">${{totalCredit}}/${{form.get('amountPaid').value}}</span>
+                                    <div class="flex-space-between">
+                                        <span [ngClass]="isCreditMapExceedsAmountPaid ? 'text-danger' : ''">${{totalCredit}}/${{form.get('amountPaid').value}}</span>
+                                        <button class="btn btn-sm btn-primary" [disabled]="form.get('amountPaid').value <= 0" (click)="splitCreditsEqually()">Split Equally</button>
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>

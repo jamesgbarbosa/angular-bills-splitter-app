@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Inject, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   MAT_DIALOG_DATA,
   MatDialogRef
@@ -94,6 +94,16 @@ export class ExpenseModalComponent implements OnInit {
       return this.isCreditMapValueEqualAmountPaid;
     } else {
       return true;
+    }
+  }
+
+  splitCreditsEqually() {
+    const amount = +this.form.get('amountPaid').value;
+    const splittedAmount = (amount / this.creditArray.length).toFixed(2)
+    if (amount > 0) {
+      this.creditArray.controls.forEach((control: AbstractControl) => {
+        control?.get('amount')?.setValue(splittedAmount)
+      })
     }
   }
 
