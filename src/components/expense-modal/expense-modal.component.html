@@ -38,9 +38,9 @@
                 </span>
             </div>
 
-            <div class="mb-3" *ngIf="form.get('transactionType').value == 'OWED_FULL_AMOUNT_CUSTOM'">
-                <label for="credits" class="form-label">Credit Map</label>
-                <ng-container formArrayName="credits">
+            <div class="mb-3" *ngIf="form.get('transactionType').value == 'OWED_FULL_AMOUNT_CUSTOM' && creditArray.length > 1">
+                <label for="credit" class="form-label">Credit Map</label>
+                <ng-container formArrayName="credit">
                     <table class="table table-striped table-bordered">
                         <thead>
                             <tr>

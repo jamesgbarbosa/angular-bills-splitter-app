@@ -17,7 +17,6 @@ export class ExpenseModalComponent implements OnInit {
   form: FormGroup | any;
   transactionTypes: any;
   title = 'New Expense'
-  creditObj = {};
 
   constructor(public dialogRef: MatDialogRef<ExpenseModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any, private fb: FormBuilder) {
@@ -31,16 +30,21 @@ export class ExpenseModalComponent implements OnInit {
       name: [expense?.name ?? '', Validators.required],
       transactionType: [expense?.transactionType ?? this.transactionTypes[0].id, Validators.required],
       amountPaid: [expense?.amountPaid ?? 0, [Validators.required, Validators.min(1)]],
-      credits: this.fb.array([])
     })
-    this.initCreditObject(defaultUser.id)
+
+    if (this.data.users.length > 1) {
+      this.form.addControl('credit', this.fb.array([]))
+    }
+
+    this.bindCreditToCreditArray(defaultUser.id)
   }
 
   ngOnInit(): void {
+    
   }
 
   get creditArray() {
-    return this.form.get('credits') as FormArray
+    return this.form.get('credit') as FormArray
   }
 
   addCredit(id: string, amount: string) {
@@ -50,9 +54,6 @@ export class ExpenseModalComponent implements OnInit {
       userName: [user?.name],
       amount: [amount],
     })
-    if (this.form.get('userId').value == id) {
-      creditFg.disable();
-    }
     this.creditArray.push(creditFg)
   }
 
@@ -60,10 +61,10 @@ export class ExpenseModalComponent implements OnInit {
     const id = event.target.value;
     const user = this.data.users.find((it: User) => it.id == id)
     this.form.get('userName').setValue(user.name);
-    this.initCreditObject(id)
+    this.bindCreditToCreditArray(id)
   }
 
-  initCreditObject(id: string) {
+  bindCreditToCreditArray(id: string) {
     const existingExpense = this.data?.expense?.credit;
     this.creditArray.clear();
     [...this.data.users].filter((it) => it.id != id)
@@ -101,23 +102,7 @@ export class ExpenseModalComponent implements OnInit {
   }
 
   add() {
-    console.log(this.initCredit())
-    let obj = this.form.value;
-    delete obj['credits']
-    obj['credit'] = this.initCredit();
-    this.dialogRef.close(obj)
-  }
-
-  initCredit() {
-    const userId = this.form.get('userId').value;
-    const obj = this.creditArray.value.reduce((obj: any, it: any) => {
-      return {
-        ...obj,
-        [it.id] : -Math.abs(+it.amount)
-      }
-    }, {})
-    obj[userId] = +this.form.get('amountPaid').value;
-    return obj;
+    this.dialogRef.close(this.form.value)
   }
 
   getTitleByMode(mode: string): string {

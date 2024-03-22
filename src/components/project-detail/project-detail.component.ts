@@ -38,8 +38,7 @@ export class ProjectDetailComponent implements OnInit {
 
   projectFireBaseId = "";
   transactionTypes = [
-    { id: SPLIT_EQUALLY, name: "Split equally" },
-    { id: OWED_FULL_AMOUNT, name: "Owed full amount" },
+    { id: SPLIT_EQUALLY, name: "Split equally" }
   ]
 
   constructor(private projectFirebaseService: ProjectFirebaseService) { }
@@ -69,8 +68,10 @@ export class ProjectDetailComponent implements OnInit {
 
       if (project.users?.length > 2) {
         // Add custom option for projects with more than 2 users
-        this.transactionTypes.push({ id: OWED_FULL_AMOUNT_CUSTOM, name: "Owed full amount custom" })
-      }
+        this.transactionTypes.push({ id: OWED_FULL_AMOUNT_CUSTOM, name: "Owed full amount" })
+      } else[
+        this.transactionTypes.push({ id: OWED_FULL_AMOUNT, name: "Owed full amount" })
+      ]
     }).finally(() => {
       this.isLoading = false;
     })
@@ -104,7 +105,7 @@ export class ProjectDetailComponent implements OnInit {
       }
       case OWED_FULL_AMOUNT_CUSTOM: {
         this.initFirebaseProcess(() => {
-          expense.credit = result.credit;
+          expense.credit = this.bindCreditMapToCreditObject(expense, result.credit);
           this.store.dispatch(customExpense({ payload: expense }))
         })
         break;
@@ -123,6 +124,20 @@ export class ProjectDetailComponent implements OnInit {
     }
   }
 
+  bindCreditMapToCreditObject(expense: Expense, creditMap = []) {
+    const userId = expense?.paidBy?.id
+    const obj = creditMap.reduce((obj: any, it: any) => {
+      return {
+        ...obj,
+        [it.id]: -Math.abs(+it.amount)
+      }
+    }, {})
+    if (userId) {
+      obj[userId] = +expense.amountPaid;
+    }
+    return obj;
+  }
+
   initFirebaseProcess(callback?: Function) {
     let previousState = { ...this.currentProjectState }
     if (callback) {
@@ -135,19 +150,6 @@ export class ProjectDetailComponent implements OnInit {
       this.store.dispatch(loadState({ payload: previousState }))
       alert("Service is currently unavailable");
       // this.store.dispatch(loadState({ payload: previousProjectState }))
-    });
-  }
-
-
-  onAddExpenseModal() {
-    const dialogRef = this.dialog.open(ExpenseModalComponent, {
-      data: { users: this.currentProjectState.users, transactionTypes: this.transactionTypes, mode: 'ADD' }
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this._initializeExpense(result);
-      }
     });
   }
 
@@ -171,6 +173,18 @@ export class ProjectDetailComponent implements OnInit {
         break;
       }
     }
+  }
+
+  onAddExpenseModal() {
+    const dialogRef = this.dialog.open(ExpenseModalComponent, {
+      data: { users: this.currentProjectState.users, transactionTypes: this.transactionTypes, mode: 'ADD' }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this._initializeExpense(result);
+      }
+    });
   }
 
   openEditExpenseModal(expense: Expense) {
