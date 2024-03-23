@@ -19,7 +19,7 @@ export class ExpenseDetailsModalComponent implements OnInit {
   constructor(public dialogRef: MatDialogRef<ExpenseDetailsModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any) {
         this.expense = data.expense;
-        this.totalCredit = data.expense.credit.reduce((total:number, it:any) => (+total + +it.amount),0)
+        this.totalCredit = data.expense.credit.reduce((total:number, it:any) => (+total + +it.amount),0).toFixed(2)
   }
 
 
