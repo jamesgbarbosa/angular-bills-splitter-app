@@ -11,31 +11,57 @@
             </tr>
         </thead>
         <tbody>
-            <tr *ngFor="let it of data">
-                <!-- <td>
-                                {{it.dateCreated}}
-                            </td> -->
-                <td>
-                    {{it.paidBy?.name}}
-                </td>
-                <td>
-                    {{it.name}}
-                </td>
-                <td>
-                    <span *ngIf="it.transactionType == 'OWED_FULL_AMOUNT_CUSTOM'" class="badge bg-warning text-dark">Owed Full Amount</span>
-                    <span *ngIf="it.transactionType == 'SETTLE'" class="badge bg-success"> Settle</span>
-                    <span *ngIf="it.transactionType == 'SPLIT_EQUALLY'" class="badge bg-danger"> Split Equally</span>
-                    <span *ngIf="it.transactionType == 'OWED_FULL_AMOUNT'" class="badge bg-warning text-dark"> Owed Full
-                        Amount</span>
-                </td>
-                <td>
-                    $ {{it.amountPaid}}
-                </td>
-                <td>
-                    <span class="mx-1"><i (click)="deleteExpense(it.id)" class="bi bi-trash-fill clickable"></i></span>
-                    <span class="mx-1"><i (click)="editExpense(it.id)" class="bi bi-pencil-square clickable"></i></span>
-                </td>
-            </tr>
+            <ng-container *ngFor="let it of data">
+                <tr (click)="clickRow(it)">
+                    <td>
+                        {{it.paidBy?.name}}
+                    </td>
+                    <td>
+                        {{it.name}}
+                    </td>
+                    <td>
+                        <span *ngIf="it.transactionType == 'OWED_FULL_AMOUNT_CUSTOM'"
+                            class="badge bg-warning text-dark">Owed Full Amount</span>
+                        <span *ngIf="it.transactionType == 'SETTLE'" class="badge bg-success"> Settle</span>
+                        <span *ngIf="it.transactionType == 'SPLIT_EQUALLY'" class="badge bg-danger"> Split
+                            Equally</span>
+                        <span *ngIf="it.transactionType == 'OWED_FULL_AMOUNT'" class="badge bg-warning text-dark"> Owed
+                            Full
+                            Amount</span>
+                    </td>
+                    <td>
+                        $ {{it.amountPaid}}
+                    </td>
+                    <td>
+                        <span class="mx-1"><i (click)="deleteExpense($event, it.id)"
+                                class="bi bi-trash-fill clickable"></i></span>
+                        <span class="mx-1"><i (click)="editExpense($event, it.id)"
+                                class="bi bi-pencil-square clickable"></i></span>
+                    </td>
+                </tr>
+                <tr *ngIf="it?.isExpanded">
+                    <td colspan="6">
+                        <div class="row">
+                            <div class="col-3 col-md-2">
+                                <label>Bill Statement: </label>
+
+                            </div>
+                            <div class="col-9 col-md-3">
+                                <div class="row">
+                                    <div *ngFor="let record of it?.credit" class="col-6">
+                                        <label>{{record.name}} - </label>
+                                        <label>
+                                            ${{record.amount}}
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </td>
+                </tr>
+            </ng-container>
+
             <tr *ngIf="data?.length == 0">
                 <td colspan="6" style="text-align: center;">No Data</td>
             </tr>

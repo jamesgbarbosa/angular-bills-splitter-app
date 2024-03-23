@@ -9,15 +9,12 @@
             <button [disabled]="currentProjectState?.expenses?.length == 0" class="btn btn-success" type="button" (click)="onSettlePaymentModal()">Settle</button>
         </div>
     
-        <app-expenses (onEditExpense)="onEditExpenseButtonClick($event)" (onDeleteExpense)="deleteExpense($event)" [data]="currentProjectState?.expenses" />
+        <app-expenses (onRowClick)="openExpenseDetailsModal($event)" (onEditExpense)="onEditExpenseButtonClick($event)" (onDeleteExpense)="deleteExpense($event)" [data]="currentProjectState.expenses" />
     
         <ng-template #noData>
             <p>No Data</p>
         </ng-template>
-
     </div>
-    
-    <button (click)="goToHome()">Home</button>
 </ng-container>
 
 <ng-template #loading>

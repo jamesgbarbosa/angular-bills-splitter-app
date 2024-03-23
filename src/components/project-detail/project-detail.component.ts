@@ -17,6 +17,7 @@ import { Observable } from 'rxjs';
 import { previousProjectState, selectExpense, selectProject } from '../../app/store/expense/expense.selector';
 import { processProject } from '../../app/store/expense/expense.reducer.util';
 import { ProjectFirebaseService } from '../project/project.firebase.service';
+import { ExpenseDetailsModalComponent } from '../expense-details-modal/expense-details-modal.component';
 
 @Component({
   selector: 'project-detail',
@@ -169,10 +170,21 @@ export class ProjectDetailComponent implements OnInit {
         break;
       }
       case SETTLE: {
-        this._openEditSettleModal(expense);
+        this.openEditSettleModal(expense);
         break;
       }
     }
+  }
+
+  openExpenseDetailsModal(expense: Expense) {
+    const creditMap = Object.entries(expense.credit).map(([id, amount]) => {
+      const user = this.currentProjectState.users.find((it: User) => {return it.id == id})
+      return { id: user?.id, name: user.name, amount: Math.abs(amount as number) }
+    }).filter((it: any) => it.id != expense?.paidBy?.id)
+    const dialogRef = this.dialog.open(ExpenseDetailsModalComponent, {
+      data: { expense: { ...expense, credit: creditMap } }
+    });
+    dialogRef.afterClosed().subscribe(result => { });
   }
 
   onAddExpenseModal() {
@@ -215,7 +227,7 @@ export class ProjectDetailComponent implements OnInit {
     }
   }
 
-  _openEditSettleModal(expense: Expense) {
+  openEditSettleModal(expense: Expense) {
     if (expense) {
       // delete expense from this.currentProjectState
       // to intiialize values to settlement modal 
@@ -281,9 +293,5 @@ export class ProjectDetailComponent implements OnInit {
         });
       }
     });
-  }
-
-  goToHome() {
-    this.router.navigate(["/"])
   }
 }

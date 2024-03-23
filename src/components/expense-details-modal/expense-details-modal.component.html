@@ -1,0 +1,40 @@
+<div class="modal-container">
+    <h3>Expense Details</h3>
+    <div class="info">
+        <h6>{{expense.paidBy?.name}} paid ${{expense.amountPaid}} for {{expense.name}}</h6>
+    </div>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>
+                    Name
+                </th>
+                <th>
+                    Amount Owed
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let i of expense.credit">
+                <td>
+                    <label>{{i.name}}</label>
+                </td>
+                <td>
+                    <label>${{i.amount}}</label>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>
+                        Total:
+                    </b>
+                </td>
+                <td>
+                    <b>
+                        {{totalCredit}}
+                    </b>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
