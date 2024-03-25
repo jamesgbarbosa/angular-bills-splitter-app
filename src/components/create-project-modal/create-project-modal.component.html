@@ -17,7 +17,7 @@
                     <div [formGroupName]="i" class="">
                         <div class="row mb-1">
                             <div class="col-10">
-                                <input id="name" class="form-control" formControlName="name" type="text" autocomplete="off" />
+                                <input id="name" class="form-control" formControlName="name" type="text" autocomplete="off" placeholder="Please input name" />
                             </div>
                             <div class="col-2" style="line-height: 2rem;">
                                 <i *ngIf="users.length > 2" (click)="deleteUser(i)" class="bi bi-trash-fill clickable"></i>
